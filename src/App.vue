@@ -1,10 +1,10 @@
 <template>
-  <!-- <div class="video-bg">
+  <div class="video-bg">
     <video width="320" height="240" autoplay loop muted>
       <source src="https://assets.codepen.io/3364143/7btrrd.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
-  </div> -->
+  </div>
 
   <el-container class="app-main">
     <el-header>
@@ -18,6 +18,7 @@
         <router-view v-if="showPage"></router-view>
       </el-main>
     </el-container>
+    <el-footer>Footer</el-footer>
   </el-container>
 </template>
 
@@ -47,7 +48,7 @@ provide('reload', onRefresh);
   align-items: center;
   flex-direction: column;
   padding: 2em;
-  background: url('/img/bg.jpg') no-repeat center / cover;
+  /* background: url('/img/bg.jpg') no-repeat center / cover; */
   .video-bg {
     position: fixed;
     right: 0;
@@ -84,8 +85,11 @@ provide('reload', onRefresh);
         border-right: 1px solid var(--border-color);
       }
       .el-main {
-        padding: 20px 40px;
+        padding: 0;
       }
+    }
+    .el-footer {
+      border-top: 1px solid var(--border-color);
     }
   }
 }
