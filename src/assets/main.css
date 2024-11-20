@@ -1,11 +1,14 @@
 @import "./base.css";
+@import './tailwind.css';
 
 html {
+  box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
 }
 
 #app {
   margin: 0 auto;
+  color: var(--theme-color);
 }
 
 ::-webkit-scrollbar {
@@ -32,4 +35,55 @@ body {
   height: 100%;
   padding: 20px 40px;
   overflow: auto;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-align-center {
+  display: flex;
+  align-items: center;
+}
+
+.flex-center-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-column-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.can-click {
+  cursor: pointer;
+  user-select: none;
+  &.disabled {
+    cursor: not-allowed;
+  }
+  &:not(.disabled) {
+    &:hover {
+      transition: all 0.3s;
+      filter: brightness(1.2);
+    }
+    &:active {
+      transition: none;
+      filter: brightness(0.8);
+    }
+  }
 }

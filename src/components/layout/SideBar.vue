@@ -26,7 +26,7 @@ onMounted(() => {});
   padding: 26px;
   overflow-y: auto;
   .side-title {
-    color: var(--inactive-color);
+    color: var(--button-inactive);
     margin-bottom: 14px;
     font-size: 15px;
     font-weight: 500;

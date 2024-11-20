@@ -18,7 +18,11 @@
         <router-view v-if="showPage"></router-view>
       </el-main>
     </el-container>
-    <el-footer>Footer</el-footer>
+    <el-footer>
+      <Footer @show="handleShow" />
+    </el-footer>
+
+    <DrawerPlayer ref="DrawerPlayerRef" />
   </el-container>
 </template>
 
@@ -27,6 +31,8 @@ import { provide, ref, nextTick } from 'vue';
 import { RouterLink, RouterView } from 'vue-router';
 import SideBar from './components/layout/SideBar.vue';
 import Header from './components/layout/Header.vue';
+import Footer from './components/layout/Footer.vue';
+import DrawerPlayer from './components/DrawerPlayer/index.vue';
 
 const showPage = ref<boolean>(true);
 const onRefresh = () => {
@@ -36,6 +42,13 @@ const onRefresh = () => {
   });
 };
 provide('reload', onRefresh);
+
+const DrawerPlayerRef = ref();
+const handleShow = () => {
+  if (DrawerPlayerRef.value) {
+    DrawerPlayerRef.value.show();
+  }
+};
 </script>
 
 <style>
@@ -89,6 +102,7 @@ provide('reload', onRefresh);
       }
     }
     .el-footer {
+      --el-footer-padding: 0;
       border-top: 1px solid var(--border-color);
     }
   }
