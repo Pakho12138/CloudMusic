@@ -1,4 +1,5 @@
-@import "./base.css";
+@import "./base.scss";
+@import "./elementui.scss";
 @import './tailwind.css';
 
 html {
@@ -86,4 +87,8 @@ body {
       filter: brightness(0.8);
     }
   }
+}
+
+.el-drawer {
+  --el-dialog-bg-color: var(--dropdown-bg);
 }

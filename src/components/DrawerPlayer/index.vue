@@ -1,12 +1,25 @@
 <template>
-  <el-drawer v-model="drawer" :direction="direction" style="box-shadow: none" size="100%" :modal="false" :showClose="false" class="drawer-bg">
-    <Icon class="btn-close can-click size-36 text-red-500" icon="ic:round-keyboard-arrow-down" />
-
+  <el-drawer
+    :style="{
+      '--track-cover-url': `url(/img/bg.jpg)`,
+    }"
+    v-model="drawer"
+    :direction="direction"
+    style="box-shadow: none"
+    size="100%"
+    :modal="false"
+    :showClose="false"
+    class="drawer-bg">
+    <template #header>
+      <div class="flex items-center">
+        <Icon class="btn-close can-click size-[40px] text-[--button-inactive]" icon="ic:round-keyboard-arrow-down" @click="close" />
+      </div>
+    </template>
   </el-drawer>
 </template>
 
 <script setup lang="ts">
-import { Icon } from '@iconify/vue/dist/iconify.js';
+import { Icon } from '@iconify/vue';
 import { onMounted, reactive, ref, toRefs } from 'vue';
 
 const state = reactive({
