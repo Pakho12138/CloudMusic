@@ -33,6 +33,7 @@ import SideBar from './components/layout/SideBar.vue';
 import Header from './components/layout/Header.vue';
 import Footer from './components/layout/Footer.vue';
 import DrawerPlayer from './components/DrawerPlayer/index.vue';
+import { useMusicPlayer } from './hooks/useMusicPlayer';
 
 const showPage = ref<boolean>(true);
 const onRefresh = () => {
@@ -49,6 +50,8 @@ const handleShow = () => {
     DrawerPlayerRef.value.show();
   }
 };
+// 共享播放器状态
+provide('MusicPlayer', useMusicPlayer());
 </script>
 
 <style>

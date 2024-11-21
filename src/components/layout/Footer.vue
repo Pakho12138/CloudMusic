@@ -2,18 +2,18 @@
   <div class="footer-wrapper flex-align-center">
     <div class="music-info flex-align-center">
       <div class="photo-wrapper flex-center can-click" @click="emit('show')">
-        <Icon class="ic-music" icon="pepicons-pop:music-note-single" />
+        <img :src="currentSong.cover" />
       </div>
       <div class="detail">
-        <div class="name">浮光</div>
-        <div class="singer">周深</div>
+        <div class="name">{{ currentSong.title }}</div>
+        <div class="singer">{{ currentSong.singer }}</div>
       </div>
     </div>
 
     <div class="player flex-align-center">
-      <Icon class="btn-pre can-click" icon="mage:previous-fill" />
-      <Icon class="btn-play can-click" :icon="isPlaying ? 'material-symbols:pause-circle-rounded' : 'material-symbols:play-circle-rounded'" />
-      <Icon class="btn-next can-click" icon="mage:next-fill" />
+      <Icon class="btn-pre can-click" icon="mage:previous-fill" @click="playPrevious" />
+      <Icon class="btn-play can-click" :icon="isPlaying ? 'material-symbols:pause-circle-rounded' : 'material-symbols:play-circle-rounded'" @click="togglePlayPause" />
+      <Icon class="btn-next can-click" icon="mage:next-fill" @click="playNext" />
       <div class="process-bar flex-align-center">
         <el-slider v-model="currentTime" :step="1" :show-tooltip="false" @change="changeCurrentTime" :max="duration" size="small" />
         <div class="duration">
@@ -30,16 +30,16 @@
 </template>
 
 <script setup lang="ts">
+import type { MusicPlayer } from '@/hooks/interface';
 import { Icon } from '@iconify/vue';
-import { onMounted, ref } from 'vue';
+import { inject, onMounted, ref } from 'vue';
+
+const { currentSong, togglePlayPause, isPlaying, playNext, playPrevious, currentTime, duration, changeCurrentTime, setPlayMode } = inject('MusicPlayer') as MusicPlayer;
 
 const emit = defineEmits(['show']);
 
 onMounted(() => {});
 
-const isPlaying = ref<boolean>(false);
-const currentTime = ref<number>(50);
-const duration = ref<number>(100);
 const isLike = ref<boolean>(false);
 
 // 格式化时间
@@ -51,10 +51,6 @@ function formatTime(seconds: number): string {
   // 返回格式化的字符串，确保分钟和秒数都至少有两位数
   return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 }
-
-const changeCurrentTime = (value: number) => {
-  currentTime.value = value;
-};
 
 const handleLike = () => {
   isLike.value = !isLike.value;
@@ -74,6 +70,7 @@ const handleLike = () => {
       height: 40px;
       background: var(--theme-bg-color);
       border-radius: 6px;
+      overflow: hidden;
     }
     .ic-music {
       font-size: 26px;

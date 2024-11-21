@@ -1,6 +1,6 @@
-@import "./base.scss";
-@import "./elementui.scss";
-@import './tailwind.css';
+@use "./base.scss";
+@use "./elementui.scss";
+@use './tailwind.css';
 
 html {
   box-sizing: border-box;
@@ -24,7 +24,8 @@ html {
 }
 
 body {
-  --el-color-primary: #c20c0c;
+  // --el-color-primary: #c20c0c;
+  --el-color-primary: var(--theme-color);
 }
 
 .el-drawer__body {

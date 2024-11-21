@@ -21,3 +21,25 @@
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 1%, rgba(0, 0, 0, 0));
   pointer-events: none;
 }
+
+.el-avatar {
+  --el-avatar-bg-color: transparent !important;
+}
+
+.el-switch {
+  --el-switch-on-color: #5fcf65 !important;
+  --el-switch-off-color: var(--button-inactive) !important;
+  .el-switch__label {
+    color: var(--theme-color);
+    &.is-active {
+      color: var(--theme-color);
+    }
+  }
+}
+
+.el-slider {
+  --el-slider-runway-bg-color: var(--inactive-color) !important;
+  .el-slider__button-wrapper {
+    display: none;
+  }
+}
