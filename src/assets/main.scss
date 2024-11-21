@@ -73,6 +73,13 @@ body {
   align-items: center;
 }
 
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 2; /* 控制显示的行数 */
+}
+
 .can-click {
   cursor: pointer;
   user-select: none;
