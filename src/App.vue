@@ -14,7 +14,7 @@
       <el-aside width="240px">
         <SideBar />
       </el-aside>
-      <el-main>
+      <el-main class="bg-[--theme-bg-color]">
         <router-view v-if="showPage"></router-view>
       </el-main>
     </el-container>
