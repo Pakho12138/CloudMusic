@@ -1,5 +1,7 @@
 <template>
-  <div class="container-wrapper">
+  <TabBar v-model="curTab" :tabs="tabs" />
+
+  <div v-if="curTab=='recommend'" class="container-wrapper">
     <el-carousel :interval="4000" type="card" height="150px" trigger="click" indicator-position="outside">
       <el-carousel-item v-for="item in banners" :key="item">
         <el-image style="width: 100%; height: 100%" :src="item.imageUrl" fit="cover" />
@@ -23,6 +25,7 @@
 <script setup lang="ts">
 import { Api } from '@/utils/request';
 import { onBeforeMount, onMounted, ref } from 'vue';
+import TabBar from '@/components/TabBar.vue'
 
 onBeforeMount(() => {
   getBanner();
@@ -30,6 +33,26 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {});
+
+const curTab = ref<string>('recommend');
+const tabs = ref<Array<any>>([
+  {
+    label: '推荐',
+    name: 'recommend',
+  },
+  {
+    label: '排行榜',
+    name: 'toplist',
+  },
+  {
+    label: '歌单',
+    name: 'playlist',
+  },
+  {
+    label: '主播电台',
+    name: 'djradio',
+  },
+]);
 
 // 获取轮播图
 const banners = ref<Array<any>>([]);

@@ -12,7 +12,7 @@
     class="drawer-bg">
     <template #header>
       <div class="flex items-center justify-between">
-        <div class="flex items-center justify-center gap-2">
+        <div class="flex items-center gap-2 w-40">
           <Icon class="btn-close can-click size-[40px] text-[--button-inactive]" icon="ic:round-keyboard-arrow-down" @click="close" />
         </div>
 
@@ -21,14 +21,20 @@
           <span class="font-semibold">{{ localeCurrentTime }}</span>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-4 w-40 justify-end">
+          <div class="flex items-center gap-2 text-xl text-[--button-inactive]">
+            <Icon icon="material-symbols:bluetooth" />
+            <Icon icon="material-symbols:wifi" />
+            <Icon icon="ic:baseline-battery-charging-80" />
+          </div>
+
           <el-avatar :src="userStore.userInfo.avatarUrl" class="mr-2" shape="circle" :size="32" />
         </div>
       </div>
     </template>
 
     <div class="flex h-full w-full flex-col gap-3 px-6 py-2">
-      <div class="flex flex-row flex-1 items-center justify-between">
+      <div class="flex flex-row flex-1 items-center justify-between gap-5">
         <div class="md:flex-[50%] md:max-w-[50%] flex-1 max-w-full flex h-full items-center justify-center">
           <div class="items-center justify-center flex flex-col h-full w-full">
             <div :class="`music-player-container ${isPlaying ? 'is-playing' : ''}`">
