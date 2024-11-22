@@ -25,3 +25,15 @@ export function formatNumber(num: number): string {
     return (num / 10000).toFixed(0) + '万'; // 对于大于或等于100000的数字，直接显示为整数的万
   }
 }
+
+export function formatMillisecondsToTime(totalMilliseconds: number) {
+  const totalSeconds = Math.floor(totalMilliseconds / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds - hours * 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return [hours, minutes, seconds]
+    .map(n => (n < 10 ? `0${n}` : n.toString()))
+    .filter((val, index) => val !== '00' || index > 0) // 移除开头的"00"小时
+    .join(':');
+}

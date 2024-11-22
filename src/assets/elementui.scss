@@ -1,3 +1,8 @@
+body {
+  --el-color-primary: var(--theme-color);
+  --el-border-color: var(--border-color);
+}
+
 .drawer-bg {
   position: relative;
   overflow: hidden;
@@ -41,5 +46,45 @@
   --el-slider-runway-bg-color: var(--inactive-color) !important;
   .el-slider__button-wrapper {
     display: none;
+  }
+}
+
+.el-table {
+  width: 100%;
+  --el-table-text-color: var(--theme-color) !important;
+  --el-table-header-text-color: var(--button-inactive) !important;
+  --el-bg-color: var(--content-bg) !important;
+  --el-table-row-hover-bg-color: var(--theme-bg-color) !important;
+  --el-fill-color-blank: transparent !important;
+  --el-table-border-color: var(--border-color) !important;
+  border-radius: 10px;
+  overflow: hidden;
+  .el-table__inner-wrapper::before {
+    display: none;
+  }
+  .el-scrollbar__view{
+    height: 100%;
+    .el-table__empty-block {
+      background: var(--content-bg);
+    }
+  }
+}
+
+.el-pagination {
+  --el-text-color-regular: var(--button-inactive) !important;
+  --el-pagination-text-color: var(--theme-color) !important;
+  --el-pagination-button-color: var(--button-inactive) !important;
+  --el-fill-color-blank: transparent !important;
+  --el-fill-color: var(--content-bg) !important;
+  --el-input-border-color: var(--border-color) !important;
+  button:disabled {
+    background-color: var(--button-inactive) !important;
+    color: var(--theme-color) !important;
+  }
+  .el-pager li {
+    &.is-active {
+      color: var(--theme-color) !important;
+      background-color: var(--content-bg) !important;
+    }
   }
 }

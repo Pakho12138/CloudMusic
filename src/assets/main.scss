@@ -23,11 +23,6 @@ html {
   border-radius: 10px;
 }
 
-body {
-  // --el-color-primary: #c20c0c;
-  --el-color-primary: var(--theme-color);
-}
-
 .el-drawer__body {
   --el-drawer-padding-primary: 0;
 }

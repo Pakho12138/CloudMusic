@@ -14,7 +14,7 @@
       <el-aside width="240px">
         <SideBar />
       </el-aside>
-      <el-main class="!overflow-hidden">
+      <el-main class="!flex !flex-col !overflow-hidden">
         <router-view v-if="showPage"></router-view>
       </el-main>
     </el-container>

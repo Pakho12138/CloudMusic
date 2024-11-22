@@ -66,3 +66,26 @@ export interface SettingState {
   isRomaParsed: Boolean;
   isDrawerCover: Boolean;
 }
+
+// 搜索
+// 歌曲的实体类型
+export interface Song {
+  name: string;
+  id: number;
+  pst: number;
+  t: number;
+  al: {
+    id: number;
+    name: string;
+    picUrl: string; // 或者 picUrl
+  };
+  ar: Array<{
+    id: number;
+    name: string;
+    tns: string[];
+    alias: string[];
+  }>;
+  dt: number; //歌曲时长
+  mv: number | null; // MV ID
+  // 针对其他字段您可以继续添加
+}
