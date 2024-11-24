@@ -6,6 +6,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { parseAndMergeLyrics, type LyricData } from '@/utils/parseLyrics';
 import { useAudioStore } from '@/stores/useAudioStore';
 import type { Track } from './interface';
+import { useThrottle, useThrottleFn } from '@vueuse/core';
 
 export function useMusicPlayer() {
   const audioStore = useAudioStore();
@@ -45,10 +46,9 @@ export function useMusicPlayer() {
   // 在组件挂载时添加事件监听器
   onMounted(() => {
     audio.src = currentSong.value.source;
-    audio.ontimeupdate = () => {
+    audio.ontimeupdate = useThrottleFn(() => {
       currentTime.value = audio.currentTime;
-    };
-
+    }, 1000);
     audio.onloadedmetadata = () => {
       duration.value = audio.duration;
     };
@@ -74,7 +74,7 @@ export function useMusicPlayer() {
       duration.value = 0;
       try {
         if (!currentSong.value?.id) return;
-        
+
         // 尝试获取新的音源地址，然后重新播放
         const { data } = await Api.get('song/url/v1', { id: currentSong.value.id, level: 'exhigh' });
         audio.src = data[0].url;
@@ -128,14 +128,9 @@ export function useMusicPlayer() {
     const activeLyric = el.querySelector('.activeLyric') as HTMLElement;
 
     if (activeLyric) {
-      el.scrollTop = activeLyric.offsetTop - el.clientHeight / 2 - activeLyric.clientHeight;
+      el.scrollTop = activeLyric.offsetTop - (el.clientHeight - activeLyric.clientHeight) / 2;
     }
   }
-
-  // 更新currentLyricIndex
-  watch(currentTime, newTime => {
-    findCurrentLyricIndex(newTime); // 每次 currentTime 更新时查找当前歌词索引
-  });
 
   // 播放音乐
   function play() {
@@ -198,7 +193,7 @@ export function useMusicPlayer() {
   // 播放上一首歌曲
   function playPrevious() {
     if (!currentSong.value?.id) return;
-    
+
     let previousIndex = (audioStore.currentSongIndex as number) - 1;
     if (previousIndex < 0) {
       previousIndex = audioStore.trackList.length - 1; // 如果是第一首歌，则跳到列表的最后
@@ -218,9 +213,9 @@ export function useMusicPlayer() {
   }
 
   // 改变当前歌曲时间
-  const changeCurrentTime = (currentTime: number) => {
-    nextTick(() => {
-      audio.currentTime = Math.round(currentTime);
+  const changeCurrentTime = (time: number) => {
+    nextTick().then(() => {
+      currentTime.value = audio.currentTime = Math.round(time);
     });
   };
 
@@ -232,6 +227,14 @@ export function useMusicPlayer() {
 
   // 添加播放歌曲的方法
   const playSong = (song: Track) => {
+    if (!song?.source) {
+      ElNotification({
+        title: '错误',
+        message: '播放失败',
+        type: 'error',
+      });
+      return;
+    }
     audio.src = song.source; // 确保您设置此歌曲的音频源
     play(); // 播放歌曲
   };
@@ -289,5 +292,6 @@ export function useMusicPlayer() {
     updateEQ,
     eqSettings,
     scrollToCurrentLyric,
+    findCurrentLyricIndex,
   };
 }

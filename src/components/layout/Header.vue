@@ -8,7 +8,7 @@
           <Icon class="can-click text-2xl text-[--button-inactive]" icon="material-symbols:arrow-forward-ios" @click="router.forward()" />
         </div>
 
-        <el-input class="search-bar min-w-64 max-w-64" v-model="keyWord" :placeholder="searchKW?.showKeyword || '搜索'" @keyup.enter="toSearch">
+        <el-input class="search-bar min-w-64 max-w-64" v-model="keyWord" :placeholder="searchKW?.showKeyword || '搜索'" @keyup.enter="toSearch" clearable>
           <template #prefix>
             <el-icon class="text-[--inactive-color]"><Search /></el-icon>
           </template>
@@ -28,11 +28,12 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
 import { Api } from '@/utils/request';
 import { useUserStore } from '@/stores/useUserStore';
 
+const route = useRoute()
 const router = useRouter();
 const userStore = useUserStore();
 
@@ -40,7 +41,7 @@ onMounted(() => {
   searchDefault();
 });
 
-const keyWord = ref('');
+const keyWord = ref(route.query.kw ||'');
 // 默认搜索关键词
 const searchKW = ref();
 const searchDefault = async () => {

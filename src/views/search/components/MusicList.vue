@@ -1,11 +1,11 @@
 <template>
   <div class="h-full w-full flex flex-col">
-    <el-table v-loading="isLoading" :data="tableData" @row-dblclick="playMusic" class="w-full !text-xs !flex-1">
+    <el-table v-loading="isLoading" element-loading-background="transparent" :data="tableData" @row-dblclick="playMusic" class="w-full !text-xs !flex-1">
       <template #empty>
         <span v-show="!isLoading">暂无数据</span>
       </template>
       <!--歌名-->
-      <el-table-column prop="name" label="歌名">
+      <el-table-column prop="name" label="歌名" minWidth="160">
         <template #default="{ row }">
           <div class="flex items-center gap-1">
             <div class="min-w-10 h-10">
@@ -28,7 +28,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="al.name" label="专辑">
+      <el-table-column prop="al.name" label="专辑" minWidth="120">
         <template #default="{ row }">
           <span class="line-clamp-1" :title="row.al.name">
             {{ row.al.name }}
@@ -42,7 +42,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="" width="180">
+      <el-table-column label="" width="140">
         <template #default="{ row }">
           <div class="flex items-center gap-4">
             <Icon icon="material-symbols:play-circle-rounded" class="can-click text-2xl text-[--button-inactive]" @click="playMusic(row)" />
@@ -73,13 +73,12 @@ import { useAudioStore } from '@/stores/useAudioStore';
 import { Api } from '@/utils/request';
 import { calculatePagination, formatMillisecondsToTime } from '@/utils/util';
 import { Icon } from '@iconify/vue';
-import { inject, onMounted, reactive, ref, toRefs } from 'vue';
+import { inject, onMounted, reactive, ref, toRefs, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const { playSong } = inject('MusicPlayer') as MusicPlayer;
 
 onMounted(() => {
-  cloudsearch();
 });
 
 const state = reactive({
@@ -93,13 +92,15 @@ const { currentPage, pageSize, size, total } = toRefs(state);
 const route = useRoute();
 const router = useRouter();
 const AudioStore = useAudioStore();
-const tableData = defineModel<Song[]>();
+const tableData = ref<Song[]>();
 const isLoading = ref<boolean>(true);
 const cloudsearch = async () => {
+  isLoading.value = true;
   const res: any = await Api.get('cloudsearch', { keywords: route.query.kw, type: 1, ...calculatePagination({ limit: state.pageSize, offset: state.currentPage }) });
+  isLoading.value = false;
   if (res.code == 200) {
     state.total = res.result.songCount || 0;
-    // tableData.value = res.result.songs || [];
+    tableData.value = res.result.songs || [];
   }
 };
 
@@ -166,6 +167,20 @@ const handleSizeChange = (Size: number) => {
 const handleCurrentChange = (current: number) => {
   cloudsearch();
 };
+
+// 监听搜索关键字
+watch(
+  () => route.query.kw,
+  (newKw) => {
+    if (typeof newKw === 'string') {
+      tableData.value = [];
+      state.currentPage = 1;
+      state.total = 0;
+      cloudsearch()
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style lang="scss" scoped></style>

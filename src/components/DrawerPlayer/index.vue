@@ -35,8 +35,8 @@
 
     <div class="flex h-full w-full flex-col gap-3 px-6 py-2">
       <div class="flex flex-row flex-1 items-center justify-between gap-5">
-        <div class="md:flex-[50%] md:max-w-[50%] flex-1 max-w-full flex h-full items-center justify-center">
-          <div class="items-center justify-center flex flex-col h-full w-full">
+        <div class="md:flex-[50%] md:max-w-[50%] flex-1 max-w-full flex items-center justify-center">
+          <div class="items-center justify-center flex flex-col w-full">
             <div :class="`music-player-container ${isPlaying ? 'is-playing' : ''}`">
               <div class="album">
                 <div
@@ -89,8 +89,9 @@
         </div>
         <div class="flex-[50%] max-w-[50%] md:flex hidden h-full items-center justify-center" style="--scroll-shadow-size: 40px">
           <template v-if="lyricsData.lines.length > 0">
-            <div class="mask-gradient !h-[600px] overflow-y-auto scroll-smooth w-full" ref="scrollContainer" @scroll="handleScroll">
-              <ul class="text-center h-full w-full" style="--scroll-shadow-size: 40px; width: calc(100% - 50px)">
+            <div class="mask-gradient relative !h-[400px] overflow-y-auto scroll-smooth w-full" ref="scrollContainer" @scroll="handleScroll">
+              <div class="lyric-placeholder"></div>
+              <ul class="text-center w-full" style="--scroll-shadow-size: 40px; width: calc(100% - 50px)">
                 <li
                   v-for="(item, index) in lyricsData.lines"
                   :key="index"
@@ -106,6 +107,7 @@
                   </p>
                 </li>
               </ul>
+              <div class="lyric-placeholder"></div>
             </div>
           </template>
           <template v-else>
@@ -144,7 +146,7 @@ import { Api } from '@/utils/request';
 import { calculatePagination, formatNumber } from '@/utils/util';
 import { Icon } from '@iconify/vue';
 import { useDebounceFn } from '@vueuse/core';
-import { inject, onMounted, reactive, ref, toRefs } from 'vue';
+import { inject, nextTick, onMounted, reactive, ref, toRefs, watch } from 'vue';
 
 const userStore = useUserStore();
 const themeStore = useThemeStore();
@@ -161,8 +163,22 @@ const state = reactive({
 
 const { direction, drawer, commentListData, commenDrawer, commenTotal } = toRefs(state);
 
-const { currentSong, togglePlayPause, isPlaying, playNext, playPrevious, currentTime, duration, changeCurrentTime, Loadlyrics, lyricsData, currentLyricIndex, setPlayMode, scrollToCurrentLyric } =
-  inject('MusicPlayer') as MusicPlayer;
+const {
+  currentSong,
+  togglePlayPause,
+  isPlaying,
+  playNext,
+  playPrevious,
+  currentTime,
+  duration,
+  changeCurrentTime,
+  Loadlyrics,
+  lyricsData,
+  currentLyricIndex,
+  setPlayMode,
+  scrollToCurrentLyric,
+  findCurrentLyricIndex
+} = inject('MusicPlayer') as MusicPlayer;
 
 onMounted(() => {
   setInterval(updateTime, 1000); // 每秒更新一次本地时间
@@ -235,8 +251,8 @@ const debouncedFn = useDebounceFn(() => {
 
 // 处理滚动事件，触发防抖函数
 function handleScroll() {
-  state.isUserScrolling = true; // 标记用户正在滚动
-  debouncedFn(); // 调用防抖函数
+  // state.isUserScrolling = true; // 标记用户正在滚动
+  // debouncedFn(); // 调用防抖函数
 }
 
 const show = () => {
@@ -248,6 +264,22 @@ const show = () => {
 const close = () => {
   drawer.value = false;
 };
+
+watch(
+  () => currentTime.value,
+  (newTime, lastTime) => {
+    // 仅在 currentTime 有效且用户未滚动时滚动歌词
+    // console.log('newTime', newTime);
+    // console.log('isUserScrolling', state.isUserScrolling);
+    if (newTime && !state.isUserScrolling) {
+      
+      findCurrentLyricIndex(newTime);
+      nextTick().then(() => {
+        scrollToCurrentLyric(scrollContainer.value); // 滚动到当前歌词
+      });
+    }
+  }
+);
 
 defineExpose({
   show,
@@ -308,6 +340,10 @@ defineExpose({
   .is-playing & {
     left: 52%;
   }
+}
+
+.lyric-placeholder {
+  height: calc(50% - 16px);
 }
 
 .activeLyric {

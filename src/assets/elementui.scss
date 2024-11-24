@@ -62,7 +62,7 @@ body {
   .el-table__inner-wrapper::before {
     display: none;
   }
-  .el-scrollbar__view{
+  .el-scrollbar__view {
     height: 100%;
     .el-table__empty-block {
       background: var(--content-bg);
@@ -87,4 +87,9 @@ body {
       background-color: var(--content-bg) !important;
     }
   }
+}
+
+.el-skeleton {
+  --el-skeleton-color: var(--content-bg) !important;
+  --el-skeleton-to-color: var(--inactive-color) !important;
 }
