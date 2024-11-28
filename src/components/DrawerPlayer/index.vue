@@ -1,7 +1,13 @@
 <template>
   <el-drawer
     :style="{
-      '--track-cover-url': `url(${SettingStore.isDrawerCover ? (currentSong.id ? currentSong.cover : 'img/bg.jpg') : ''})`,
+      '--track-cover-url': `url(${
+        SettingStore.isDrawerCover
+          ? currentSong.id
+            ? currentSong.cover
+            : 'img/bg.jpg'
+          : ''
+      })`,
     }"
     v-model="drawer"
     :direction="direction"
@@ -13,7 +19,10 @@
     <template #header>
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2 w-40">
-          <Icon class="btn-close can-click size-[40px] text-[--button-inactive]" icon="ic:round-keyboard-arrow-down" @click="close" />
+          <Icon
+            class="btn-close can-click size-[40px] text-[--button-inactive]"
+            icon="ic:round-keyboard-arrow-down"
+            @click="close" />
         </div>
 
         <div class="flex items-center text-sm text-[--button-inactive]">
@@ -28,16 +37,24 @@
             <Icon icon="ic:baseline-battery-charging-80" />
           </div>
 
-          <el-avatar :src="userStore.userInfo.avatarUrl" class="mr-2" shape="circle" :size="32" />
+          <el-avatar
+            :src="userStore.userInfo.avatarUrl"
+            class="mr-2"
+            shape="circle"
+            :size="32" />
         </div>
       </div>
     </template>
 
     <div class="flex h-full w-full flex-col gap-3 px-6 py-2">
       <div class="flex flex-row flex-1 items-center justify-between gap-5">
-        <div class="md:flex-[50%] md:max-w-[50%] flex-1 max-w-full flex items-center justify-center">
+        <div
+          class="md:flex-[50%] md:max-w-[50%] flex-1 max-w-full flex items-center justify-center">
           <div class="items-center justify-center flex flex-col w-full">
-            <div :class="`music-player-container ${isPlaying ? 'is-playing' : ''}`">
+            <div
+              :class="`music-player-container ${
+                !isLoading && isPlaying ? 'is-playing' : ''
+              }`">
               <div class="album">
                 <div
                   class="album-art rounded-md"
@@ -60,12 +77,33 @@
                 <el-button text circle @click="setPlayMode(PlayMode.Random)">
                   <icon-lets-icons:sort-random />
                 </el-button> -->
-                <Icon icon="mage:previous-fill" class="can-click text-2xl text-[--button-inactive]" @click="handlePlayPrevious" />
                 <Icon
-                  class="can-click text-5xl text-[--button-inactive]"
-                  :icon="isPlaying ? 'material-symbols:pause-circle-rounded' : 'material-symbols:play-circle-rounded'"
-                  @click="togglePlayPause" />
-                <Icon icon="mage:next-fill" class="can-click text-2xl text-[--button-inactive]" @click="handlePlayNext" />
+                  icon="mage:previous-fill"
+                  class="can-click text-2xl text-[--button-inactive]"
+                  @click="handlePlayPrevious" />
+                <div class="relative">
+                  <Icon
+                    class="text-4xl text-[--button-inactive] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    :class="isLoading ? 'opacity-100' : 'opacity-0'"
+                    icon="svg-spinners:90-ring-with-bg" />
+                  <Icon
+                    class="can-click text-4xl text-[--button-inactive]"
+                    :class="
+                      isLoading
+                        ? 'opacity-0 !cursor-default'
+                        : 'opacity-100 !cursor-pointer'
+                    "
+                    :icon="
+                      isPlaying
+                        ? 'material-symbols:pause-circle-rounded'
+                        : 'material-symbols:play-circle-rounded'
+                    "
+                    @click="togglePlayPause" />
+                </div>
+                <Icon
+                  icon="mage:next-fill"
+                  class="can-click text-2xl text-[--button-inactive]"
+                  @click="handlePlayNext" />
                 <!-- <el-button text circle @click="setPlayMode(PlayMode.Loop)">
                   <icon-cil:loop />
                 </el-button>
@@ -74,28 +112,57 @@
                 </el-button> -->
               </div>
               <div class="flex gap-2 w-full items-center pt-2">
-                <span class="text-xs w-10 text-foreground/50">{{ formatTime(currentTime) }}</span>
-                <el-slider v-model="currentTime" :show-tooltip="false" @change="changeCurrentTime" :max="duration" class="w-full" size="small" />
-                <span class="text-xs w-10 text-foreground/50">{{ formatTime(duration) }}</span>
+                <span class="text-xs w-10 text-foreground/50">{{
+                  formatTime(currentTime)
+                }}</span>
+                <el-slider
+                  :model-value="currentTime"
+                  :show-tooltip="false"
+                  @change="changeCurrentTime"
+                  @input="inputCurrentTime"
+                  :max="duration"
+                  class="w-full"
+                  size="small" />
+                <span class="text-xs w-10 text-foreground/50">{{
+                  formatTime(duration)
+                }}</span>
               </div>
               <div v-if="currentSong?.id" class="flex items-center mt-2">
-                <Icon icon="uil:comment-dots" class="can-click text-2xl text-[--button-inactive]" @click="showDrawer" />
-                <span class="text-sm ml-1 text-[--button-inactive]" v-if="commenTotal !== 0">
+                <Icon
+                  icon="uil:comment-dots"
+                  class="can-click text-2xl text-[--button-inactive]"
+                  @click="showDrawer" />
+                <span
+                  class="text-sm ml-1 text-[--button-inactive]"
+                  v-if="commenTotal !== 0">
                   {{ formatNumber(commenTotal) }}
                 </span>
               </div>
             </div>
           </div>
         </div>
-        <div class="flex-[50%] max-w-[50%] md:flex hidden h-full items-center justify-center" style="--scroll-shadow-size: 40px">
+        <div
+          class="flex-[50%] max-w-[50%] md:flex hidden h-full items-center justify-center"
+          style="--scroll-shadow-size: 40px">
           <template v-if="lyricsData.lines.length > 0">
-            <div class="mask-gradient relative !h-[400px] overflow-y-auto scroll-smooth w-full" ref="scrollContainer" @scroll="handleScroll">
+            <div
+              class="mask-gradient relative !h-[400px] overflow-y-auto scroll-smooth w-full"
+              ref="scrollContainer"
+              @scroll="handleScroll">
               <div class="lyric-placeholder"></div>
-              <ul class="text-center w-full" style="--scroll-shadow-size: 40px; width: calc(100% - 50px)">
+              <ul
+                class="text-center w-full"
+                style="--scroll-shadow-size: 40px; width: calc(100% - 50px)">
                 <li
                   v-for="(item, index) in lyricsData.lines"
                   :key="index"
-                  :class="[`text-sm py-1 transition-all duration-300 ease-in-out ${currentLyricIndex === index ? 'activeLyric' : 'inactiveLyric'}`]">
+                  :class="[
+                    `h-9 flex items-center justify-center text-sm py-1 transition-all duration-300 ease-in-out ${
+                      currentLyricIndex === index
+                        ? 'activeLyric'
+                        : 'inactiveLyric'
+                    }`,
+                  ]">
                   <p v-if="item.text && SettingStore.isOriginalParsed">
                     {{ item.text }}
                   </p>
@@ -128,9 +195,21 @@
 
     <template #footer>
       <div class="flex justify-end">
-        <el-switch v-model="themeStore.isDark" @change="switchDark" active-text="暗黑模式" class="ml-2" />
-        <el-switch v-model="SettingStore.isTranslatedParsed" @change="SettingStore.setTranslatedParsed" class="ml-2" active-text="翻译" />
-        <el-switch v-model="SettingStore.isRomaParsed" @change="SettingStore.setRomaParsed" class="ml-2" active-text="罗马音" />
+        <el-switch
+          v-model="themeStore.isDark"
+          @change="switchDark"
+          active-text="暗黑模式"
+          class="ml-2" />
+        <el-switch
+          v-model="SettingStore.isTranslatedParsed"
+          @change="SettingStore.setTranslatedParsed"
+          class="ml-2"
+          active-text="翻译" />
+        <el-switch
+          v-model="SettingStore.isRomaParsed"
+          @change="SettingStore.setRomaParsed"
+          class="ml-2"
+          active-text="罗马音" />
       </div>
     </template>
   </el-drawer>
@@ -145,7 +224,7 @@ import { useUserStore } from '@/stores/useUserStore';
 import { Api } from '@/utils/request';
 import { calculatePagination, formatNumber } from '@/utils/util';
 import { Icon } from '@iconify/vue';
-import { useDebounceFn } from '@vueuse/core';
+import { useDebounceFn, useThrottleFn } from '@vueuse/core';
 import { inject, nextTick, onMounted, reactive, ref, toRefs, watch } from 'vue';
 
 const userStore = useUserStore();
@@ -155,29 +234,33 @@ const { switchDark } = useTheme();
 const state = reactive({
   direction: 'btt',
   drawer: false,
-  commentListData: [] as Comment[],
-  commenDrawer: false,
-  commenTotal: 0,
   isUserScrolling: false,
 });
 
-const { direction, drawer, commentListData, commenDrawer, commenTotal } = toRefs(state);
+const { direction, drawer } = toRefs(state);
 
 const {
   currentSong,
   togglePlayPause,
   isPlaying,
+  isLoading,
   playNext,
   playPrevious,
   currentTime,
   duration,
   changeCurrentTime,
+  inputCurrentTime,
   Loadlyrics,
   lyricsData,
   currentLyricIndex,
   setPlayMode,
   scrollToCurrentLyric,
-  findCurrentLyricIndex
+  findCurrentLyricIndex,
+  commenDrawer,
+  commentListData,
+  commenTotal,
+  getCommentPlaylist,
+  showDrawer,
 } = inject('MusicPlayer') as MusicPlayer;
 
 onMounted(() => {
@@ -196,31 +279,23 @@ function formatTime(seconds: number): string {
   const sec = Math.floor(seconds % 60);
 
   // 返回格式化的字符串，确保分钟和秒数都至少有两位数
-  return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  return `${min.toString().padStart(2, '0')}:${sec
+    .toString()
+    .padStart(2, '0')}`;
 }
-
-// 获取评论列表的函数，默认请求第一页，如果已有评论则不再请求
-const getCommentPlaylist = async (pages: number = 1) => {
-  if (!currentSong.value?.id || state.commentListData.length > 0) return; // 如果已有评论数据，则不再请求
-
-  // 请求评论数据，并合并到现有评论列表中
-  const res: any = await Api.get('comment/music', { id: currentSong.value.id, ...calculatePagination({ offset: pages }) });
-  state.commentListData = state.commentListData.concat(res.comments); // 更新评论列表
-  state.commenTotal = res.total; // 更新评论总数
-};
 
 // 播放上一首歌曲的处理函数
 function handlePlayPrevious() {
-  state.commentListData = []; // 清空评论列表
-  state.commenTotal = 0; // 重置评论总数
+  commentListData.value = []; // 清空评论列表
+  commenTotal.value = 0; // 重置评论总数
   playPrevious(); // 播放上一首歌曲
   getCommentPlaylist(1); // 获取新的评论列表
 }
 
 // 播放下一首歌曲的处理函数
 function handlePlayNext() {
-  state.commentListData = []; // 清空评论列表
-  state.commenTotal = 0; // 重置评论总数
+  commentListData.value = []; // 清空评论列表
+  commenTotal.value = 0; // 重置评论总数
   playNext(); // 播放下一首歌曲
   getCommentPlaylist(1); // 获取新的评论列表
 }
@@ -231,17 +306,6 @@ function parseLyricInfo(lyricString: string) {
     .replace(/^\s*|\s*$/g, ''); // 去除前后空格
 }
 
-// 打开评论抽屉并加载相应的评论数据
-const showDrawer = async () => {
-  state.commenDrawer = true; // 打开评论抽屉
-  if (state.commentListData.length > 0) return; // 如果已有评论数据，则不再请求
-
-  // 请求评论数据，并更新评论列表和评论总数
-  const res: any = await Api.get('comment/music', { id: currentSong.value.id, ...calculatePagination({ offset: 1 }) });
-  state.commentListData = res.comments; // 更新评论列表
-  state.commenTotal = res.total; // 更新评论总数
-};
-
 // 防抖函数，用户滚动歌词时停止歌词滚动，3秒后继续
 const scrollContainer = ref();
 const debouncedFn = useDebounceFn(() => {
@@ -250,15 +314,23 @@ const debouncedFn = useDebounceFn(() => {
 }, 3000); // 防抖延时：3000毫秒
 
 // 处理滚动事件，触发防抖函数
-function handleScroll() {
-  // state.isUserScrolling = true; // 标记用户正在滚动
-  // debouncedFn(); // 调用防抖函数
-}
+let stopHandleScroll = false;
+const handleScroll = useThrottleFn((e: any) => {
+  if (!stopHandleScroll) {
+    state.isUserScrolling = true; // 标记用户正在滚动
+    debouncedFn(); // 调用防抖函数
+  }
+
+  handleScrollEnd();
+}, 300);
+
+// 滚动结束的处理函数，使用防抖函数，延迟500毫秒后执行
+const handleScrollEnd = useDebounceFn(() => {
+  stopHandleScroll = false;
+}, 500);
 
 const show = () => {
   drawer.value = true;
-  Loadlyrics();
-  getCommentPlaylist();
 };
 
 const close = () => {
@@ -269,10 +341,8 @@ watch(
   () => currentTime.value,
   (newTime, lastTime) => {
     // 仅在 currentTime 有效且用户未滚动时滚动歌词
-    // console.log('newTime', newTime);
-    // console.log('isUserScrolling', state.isUserScrolling);
     if (newTime && !state.isUserScrolling) {
-      
+      stopHandleScroll = true;
       findCurrentLyricIndex(newTime);
       nextTick().then(() => {
         scrollToCurrentLyric(scrollContainer.value); // 滚动到当前歌词
@@ -294,7 +364,14 @@ defineExpose({
 }
 
 .mask-gradient {
-  mask-image: linear-gradient(#000, #000, transparent 0, #000 var(--scroll-shadow-size), #000 calc(100% - var(--scroll-shadow-size)), transparent);
+  mask-image: linear-gradient(
+    #000,
+    #000,
+    transparent 0,
+    #000 var(--scroll-shadow-size),
+    #000 calc(100% - var(--scroll-shadow-size)),
+    transparent
+  );
   &::-webkit-scrollbar {
     display: none;
   }

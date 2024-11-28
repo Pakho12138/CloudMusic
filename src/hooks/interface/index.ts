@@ -30,6 +30,7 @@ export interface Track {
 export interface MusicPlayer {
   currentSong: Ref<Track>; // 当前播放的歌曲
   isPlaying: Ref<boolean>; // 播放状态
+  isLoading: Ref<boolean>; // 加载状态
   play: () => void; // 播放音乐
   playNext: () => void; // 播放下一首歌曲
   playPrevious: () => void; // 播放上一首歌曲
@@ -40,6 +41,7 @@ export interface MusicPlayer {
   currentTime: Ref<number>; // 当前播放时间
   duration: Ref<number>; // 歌曲总时间
   changeCurrentTime: (currentTime: number) => void; // 改变当前播放时间
+  inputCurrentTime: (currentTime: number) => void; // 改变当前播放时间（使用鼠标拖曳时，活动过程实时触发）
   setVolume: (volume: number) => void; // 设置音量
   playSong: (param: Track) => void; // 播放指定的歌曲
   volume: Ref<number>; // 当前音量
@@ -49,6 +51,11 @@ export interface MusicPlayer {
   scrollToCurrentLyric: (el1: HTMLElement) => void; // 加载歌词
   currentLyricIndex: Ref<number>; // 当前歌词索引
   scrollStyle: Ref<{ transform: string }>; // 用于滚动歌词的样式
+  commenDrawer : Ref<boolean>; // 评论抽屉的显示状态
+  commentListData: Ref<Comment[]>; // 评论列表数据
+  commenTotal: Ref<number>; // 评论总数
+  getCommentPlaylist: (pages: number) => Promise<void>; // 获取评论列表的方法
+  showDrawer : () => void; // 显示评论抽屉
   eqSettings: Ref<{ bass: number; mid: number; treble: number }>; // EQ 设置
   updateEQ: (band: 'bass' | 'mid' | 'treble', value: number) => void; // 更新EQ的方法
 }

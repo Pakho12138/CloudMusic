@@ -6,7 +6,8 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { parseAndMergeLyrics, type LyricData } from '@/utils/parseLyrics';
 import { useAudioStore } from '@/stores/useAudioStore';
 import type { Track } from './interface';
-import { useThrottle, useThrottleFn } from '@vueuse/core';
+import { useThrottleFn } from '@vueuse/core';
+import { calculatePagination } from '@/utils/util';
 
 export function useMusicPlayer() {
   const audioStore = useAudioStore();
@@ -17,9 +18,14 @@ export function useMusicPlayer() {
     cover: new URL(`/img/default_album.jpg`, import.meta.url).href,
   };
   // 计算属性，用来获取当前播放的歌曲
-  const currentSong = computed(() => audioStore.trackList[audioStore.currentSongIndex as number] || defaultSong);
+  const currentSong = computed(
+    () =>
+      audioStore.trackList[audioStore.currentSongIndex as number] || defaultSong
+  );
   // 用于追踪播放状态的响应式变量
   const isPlaying = ref(false);
+  // 是否正在加载
+  const isLoading = ref(false);
   // 当前播放模式的响应式变量
   const playMode = ref(PlayMode.Sequence);
   // 创建一个新的Audio实例
@@ -35,6 +41,12 @@ export function useMusicPlayer() {
   });
   // 用于追踪当前歌词索引
   const currentLyricIndex = ref(0);
+  // 评论弹窗
+  const commenDrawer = ref(false);
+  // 评论列表
+  const commentListData = ref<Comment[]>([]);
+  // 评论总数
+  const commenTotal = ref(0);
 
   // EQ相关的响应式变量
   const eqSettings = ref({
@@ -45,16 +57,33 @@ export function useMusicPlayer() {
 
   // 在组件挂载时添加事件监听器
   onMounted(() => {
+    getDetail();
     audio.src = currentSong.value.source;
+    audio.onloadstart = () => {
+      isLoading.value = true;
+    };
+    audio.oncanplaythrough = () => {
+      isLoading.value = false;
+    };
     audio.ontimeupdate = useThrottleFn(() => {
+      if (isChanging && currentTime.value == Math.round(audio.currentTime)) {
+        isChanging = false;
+        return;
+      }
       currentTime.value = audio.currentTime;
-    }, 1000);
+    }, 800);
     audio.onloadedmetadata = () => {
       duration.value = audio.duration;
     };
     // 初始化音量
     audio.volume = volume.value / 100; // 将音量转换为 0 到 1 的范围
 
+    audio.onplay = () => {
+      isPlaying.value = true;
+    };
+    audio.onpause = () => {
+      isPlaying.value = false;
+    };
     // 歌曲播放完毕后自动切换
     audio.onended = () => {
       playNext();
@@ -63,8 +92,15 @@ export function useMusicPlayer() {
     // 添加错误监听
     audio.onerror = async () => {
       await handleAudioError();
+      isPlaying.value = false;
+      isLoading.value = false;
     };
   });
+
+  const getDetail = async () => {
+    Loadlyrics();
+    getCommentPlaylist();
+  };
 
   const handleAudioError = async () => {
     if (!audio.error) return;
@@ -76,11 +112,13 @@ export function useMusicPlayer() {
         if (!currentSong.value?.id) return;
 
         // 尝试获取新的音源地址，然后重新播放
-        const { data } = await Api.get('song/url/v1', { id: currentSong.value.id, level: 'exhigh' });
+        const { data } = await Api.get('song/url/v1', {
+          id: currentSong.value.id,
+          level: 'exhigh',
+        });
         audio.src = data[0].url;
         audioStore.setCurrentSongUrl(data[0].url);
         audio.load();
-        play();
       } catch (e) {
         // 如果有获取新源失败的专用错误信息
         // errorMessage = "获取新源失败。";
@@ -90,10 +128,16 @@ export function useMusicPlayer() {
 
   // 加载歌词
   async function Loadlyrics() {
+    if (!currentSong.value?.id || lyricsData.value?.lines?.length) return;
+
     // 初始化歌词当前坐标
     lyricsData.value = { lines: [] };
     try {
-      if (currentSong.value.Lyric && (currentSong.value.Lyric.lines.length > 0 || currentSong.value.Lyric.remark)) {
+      if (
+        currentSong.value.Lyric &&
+        (currentSong.value.Lyric.lines.length > 0 ||
+          currentSong.value.Lyric.remark)
+      ) {
         // 如果 `currentSong` 已有歌词
         // 这里可直接更新使用已有的 `lyric` 字段
         // 在模板中用它的 `lyric` 字段显示
@@ -101,7 +145,9 @@ export function useMusicPlayer() {
       } else {
         if (!currentSong.value?.id) return;
 
-        const result: any = await Api.get('lyric', { id: currentSong.value.id }); // 调用 API 获取歌词
+        const result: any = await Api.get('lyric', {
+          id: currentSong.value.id,
+        }); // 调用 API 获取歌词
         lyricsData.value = parseAndMergeLyrics(result);
         // 缓存歌词
         audioStore.setCurrentSonglyrics(lyricsData.value);
@@ -117,8 +163,11 @@ export function useMusicPlayer() {
   function findCurrentLyricIndex(newTime = 0) {
     if (lyricsData.value.lines.length === 0) return;
 
-    const targetIndex = lyricsData.value.lines.findIndex((line: any) => line.time > newTime * 1000);
-    currentLyricIndex.value = targetIndex === -1 ? lyricsData.value.lines.length - 1 : targetIndex - 1;
+    const targetIndex = lyricsData.value.lines.findIndex(
+      (line: any) => line.time > newTime * 1000
+    );
+    currentLyricIndex.value =
+      targetIndex === -1 ? lyricsData.value.lines.length - 1 : targetIndex - 1;
   }
 
   // 函数计算当前高亮歌词的位置，并将其滚动到中间。使用 offsetTop 属性获取元素距离顶部的距离，并设置 scrollTop。
@@ -128,20 +177,20 @@ export function useMusicPlayer() {
     const activeLyric = el.querySelector('.activeLyric') as HTMLElement;
 
     if (activeLyric) {
-      el.scrollTop = activeLyric.offsetTop - (el.clientHeight - activeLyric.clientHeight) / 2;
+      el.scrollTop =
+        activeLyric.offsetTop -
+        (el.clientHeight - activeLyric.clientHeight) / 2;
     }
   }
 
   // 播放音乐
   function play() {
-    audio.play();
-    isPlaying.value = true;
+    audio && audio.play();
   }
 
   // 暂停音乐
   function pause() {
-    audio.pause();
-    isPlaying.value = false;
+    audio && audio.pause();
   }
 
   // 切换播放/暂停状态
@@ -173,16 +222,13 @@ export function useMusicPlayer() {
       case PlayMode.Random: // 如果是随机模式，则随机选择一首歌曲播放
         playRandomSong();
         break;
-      case PlayMode.Single: // 单曲循环模式，重新播放当前歌曲
-        audio.currentTime = 0; // 回到开头
-        play();
-        break;
-      default: // 对于顺序播放和列表循环模式，播放列表中的下一首歌
+      default: // 对于单曲循环模式、顺序播放和列表循环模式，播放列表中的下一首歌
         let nextIndex = (audioStore.currentSongIndex as number) + 1;
         if (nextIndex >= audioStore.trackList.length) {
           nextIndex = 0; // 如果是最后一首歌，则回到列表的开始
         }
         audioStore.setCurrentSong(nextIndex);
+        getDetail();
         audio.src = currentSong.value.source; // 更新audio元素的资源地址
         Loadlyrics();
         play();
@@ -199,6 +245,7 @@ export function useMusicPlayer() {
       previousIndex = audioStore.trackList.length - 1; // 如果是第一首歌，则跳到列表的最后
     }
     audioStore.setCurrentSong(previousIndex);
+    getDetail();
     audio.src = currentSong.value.source; // 更新audio元素的资源地址
     Loadlyrics();
     play();
@@ -208,14 +255,23 @@ export function useMusicPlayer() {
   function playRandomSong() {
     const randomIndex = Math.floor(Math.random() * audioStore.trackList.length);
     audioStore.setCurrentSong(randomIndex); // 设置当前歌曲为随机选择的歌曲
+    getDetail();
     audio.src = currentSong.value.source; // 更新audio元素的资源地址
     play();
   }
 
+  // 用户拖动进度条时的时间变化（这里取到的时间为准确时间，用于处理change事件返回值不准确的问题）
+  let changeTime = 0;
+  const inputCurrentTime = (time: number) => {
+    changeTime = time;
+  };
+
   // 改变当前歌曲时间
+  let isChanging = false;
   const changeCurrentTime = (time: number) => {
     nextTick().then(() => {
-      currentTime.value = audio.currentTime = Math.round(time);
+      currentTime.value = audio.currentTime = Math.round(changeTime);
+      isChanging = true;
     });
   };
 
@@ -237,6 +293,33 @@ export function useMusicPlayer() {
     }
     audio.src = song.source; // 确保您设置此歌曲的音频源
     play(); // 播放歌曲
+  };
+
+  // 获取评论列表的函数，默认请求第一页，如果已有评论则不再请求
+  const getCommentPlaylist = async (pages: number = 1) => {
+    if (!currentSong.value?.id || commentListData.value.length > 0) return; // 如果已有评论数据，则不再请求
+
+    // 请求评论数据，并合并到现有评论列表中
+    const res: any = await Api.get('comment/music', {
+      id: currentSong.value.id,
+      ...calculatePagination({ offset: pages }),
+    });
+    commentListData.value = commentListData.value.concat(res.comments); // 更新评论列表
+    commenTotal.value = res.total; // 更新评论总数
+  };
+
+  // 打开评论抽屉并加载相应的评论数据
+  const showDrawer = async () => {
+    commenDrawer.value = true; // 打开评论抽屉
+    if (commentListData.value.length > 0) return; // 如果已有评论数据，则不再请求
+
+    // 请求评论数据，并更新评论列表和评论总数
+    const res: any = await Api.get('comment/music', {
+      id: currentSong.value.id,
+      ...calculatePagination({ offset: 1 }),
+    });
+    commentListData.value = res.comments; // 更新评论列表
+    commenTotal.value = res.total; // 更新评论总数
   };
 
   // 更新EQ设置
@@ -270,9 +353,11 @@ export function useMusicPlayer() {
     // midFilter.connect(trebleFilter);
     // trebleFilter.connect(audioContext.destination);
   };
+
   return {
     currentSong,
     isPlaying,
+    isLoading,
     play,
     playNext,
     playPrevious,
@@ -283,6 +368,7 @@ export function useMusicPlayer() {
     currentTime, // 暴露当前播放时间
     duration, // 暴露歌曲总时间
     changeCurrentTime,
+    inputCurrentTime,
     setVolume,
     volume,
     playSong,
@@ -293,5 +379,10 @@ export function useMusicPlayer() {
     eqSettings,
     scrollToCurrentLyric,
     findCurrentLyricIndex,
+    commenDrawer,
+    commentListData,
+    commenTotal,
+    getCommentPlaylist,
+    showDrawer,
   };
 }

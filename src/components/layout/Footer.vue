@@ -11,18 +11,50 @@
     </div>
 
     <div class="player flex-align-center">
-      <Icon class="btn-pre can-click" icon="mage:previous-fill" @click="playPrevious" />
-      <Icon class="btn-play can-click" :icon="isPlaying ? 'material-symbols:pause-circle-rounded' : 'material-symbols:play-circle-rounded'" @click="togglePlayPause" />
-      <Icon class="btn-next can-click" icon="mage:next-fill" @click="playNext" />
+      <Icon
+        class="btn-pre can-click"
+        icon="mage:previous-fill"
+        @click="playPrevious" />
+      <div class="relative">
+        <Icon
+          class="btn-play absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 !m-0 pointer-events-none"
+          :class="isLoading ? 'opacity-100' : 'opacity-0'"
+          icon="svg-spinners:90-ring-with-bg" />
+        <Icon
+          class="btn-play can-click"
+          :class="isLoading ? 'opacity-0 !cursor-default' : 'opacity-100 !cursor-pointer'"
+          :icon="
+            isPlaying
+              ? 'material-symbols:pause-circle-rounded'
+              : 'material-symbols:play-circle-rounded'
+          "
+          @click="togglePlayPause" />
+      </div>
+      <Icon
+        class="btn-next can-click"
+        icon="mage:next-fill"
+        @click="playNext" />
       <div class="process-bar flex-align-center">
-        <el-slider v-model="currentTime" :step="1" :show-tooltip="false" @change="changeCurrentTime" :max="duration" size="small" />
+        <el-slider
+          v-model="currentTime"
+          :step="1"
+          :show-tooltip="false"
+          @change="changeCurrentTime"
+          @input="inputCurrentTime"
+          :max="duration"
+          :disabled="isLoading"
+          size="small" />
         <div class="duration">
           <span>{{ formatTime(currentTime) }}</span>
           <span>/</span>
           <span>{{ formatTime(duration) }}</span>
         </div>
       </div>
-      <Icon class="btn-like can-click" :class="{ active: isLike }" icon="solar:heart-bold" @click="handleLike" />
+      <Icon
+        class="btn-like can-click"
+        :class="{ active: isLike }"
+        icon="solar:heart-bold"
+        @click="handleLike" />
       <Icon class="btn-download can-click" icon="material-symbols:download" />
       <Icon class="btn-list can-click" icon="icon-park-solid:music-list" />
     </div>
@@ -34,7 +66,19 @@ import type { MusicPlayer } from '@/hooks/interface';
 import { Icon } from '@iconify/vue';
 import { inject, onMounted, ref } from 'vue';
 
-const { currentSong, togglePlayPause, isPlaying, playNext, playPrevious, currentTime, duration, changeCurrentTime, setPlayMode } = inject('MusicPlayer') as MusicPlayer;
+const {
+  currentSong,
+  togglePlayPause,
+  isPlaying,
+  isLoading,
+  playNext,
+  playPrevious,
+  currentTime,
+  duration,
+  changeCurrentTime,
+  inputCurrentTime,
+  setPlayMode,
+} = inject('MusicPlayer') as MusicPlayer;
 
 const emit = defineEmits(['show']);
 
@@ -49,7 +93,9 @@ function formatTime(seconds: number): string {
   const sec = Math.floor(seconds % 60);
 
   // 返回格式化的字符串，确保分钟和秒数都至少有两位数
-  return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  return `${min.toString().padStart(2, '0')}:${sec
+    .toString()
+    .padStart(2, '0')}`;
 }
 
 const handleLike = () => {
