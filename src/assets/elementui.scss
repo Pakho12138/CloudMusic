@@ -100,3 +100,24 @@ body {
   --el-skeleton-color: var(--content-bg) !important;
   --el-skeleton-to-color: var(--inactive-color) !important;
 }
+
+.el-drawer{
+  .el-drawer__header {
+    color: var(--theme-color);
+    .el-drawer__title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+}
+
+.el-popover {
+  color: var(--theme-color) !important;
+  background: var(--content-bg) !important;
+  backdrop-filter: blur(20px);
+  border-color: transparent !important;
+  .el-popper__arrow::before {
+    background: transparent !important;
+    border-color: transparent !important;
+  }
+}

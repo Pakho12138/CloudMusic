@@ -22,7 +22,11 @@
           icon="svg-spinners:90-ring-with-bg" />
         <Icon
           class="btn-play can-click"
-          :class="isLoading ? 'opacity-0 !cursor-default' : 'opacity-100 !cursor-pointer'"
+          :class="
+            isLoading
+              ? 'opacity-0 !cursor-default'
+              : 'opacity-100 !cursor-pointer'
+          "
           :icon="
             isPlaying
               ? 'material-symbols:pause-circle-rounded'
@@ -50,13 +54,17 @@
           <span>{{ formatTime(duration) }}</span>
         </div>
       </div>
+
+      <Volume />
+
       <Icon
         class="btn-like can-click"
         :class="{ active: isLike }"
         icon="solar:heart-bold"
         @click="handleLike" />
       <Icon class="btn-download can-click" icon="material-symbols:download" />
-      <Icon class="btn-list can-click" icon="icon-park-solid:music-list" />
+      
+      <LocalhostSong />
     </div>
   </div>
 </template>
@@ -169,6 +177,7 @@ const handleLike = () => {
     .btn-like {
       color: var(--button-inactive);
       font-size: 26px;
+      margin-left: 20px;
       &.active {
         color: #c20c0c;
       }
@@ -176,11 +185,6 @@ const handleLike = () => {
     .btn-download {
       color: var(--button-inactive);
       font-size: 30px;
-      margin-left: 10px;
-    }
-    .btn-list {
-      color: var(--button-inactive);
-      font-size: 28px;
       margin-left: 10px;
     }
   }

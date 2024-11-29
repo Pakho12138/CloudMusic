@@ -296,8 +296,17 @@ export function useMusicPlayer() {
   };
 
   // 获取评论列表的函数，默认请求第一页，如果已有评论则不再请求
-  const getCommentPlaylist = async (pages: number = 1) => {
-    if (!currentSong.value?.id || commentListData.value.length > 0) return; // 如果已有评论数据，则不再请求
+  let pages = 1;
+  const getCommentPlaylist = async (isLoadMore: boolean = false) => {
+    if (!currentSong.value?.id) return;
+
+    if (isLoadMore) {
+      pages++; // 如果是加载更多，则增加页码
+    } else {
+      pages = 1; // 否则，重置页码
+      commentListData.value = []; // 清空评论列表
+      commenTotal.value = 0; // 重置评论总数
+    }
 
     // 请求评论数据，并合并到现有评论列表中
     const res: any = await Api.get('comment/music', {
@@ -314,12 +323,7 @@ export function useMusicPlayer() {
     if (commentListData.value.length > 0) return; // 如果已有评论数据，则不再请求
 
     // 请求评论数据，并更新评论列表和评论总数
-    const res: any = await Api.get('comment/music', {
-      id: currentSong.value.id,
-      ...calculatePagination({ offset: 1 }),
-    });
-    commentListData.value = res.comments; // 更新评论列表
-    commenTotal.value = res.total; // 更新评论总数
+    getCommentPlaylist();
   };
 
   // 更新EQ设置

@@ -31,7 +31,7 @@ import { provide, ref, nextTick } from 'vue';
 import { RouterLink, RouterView } from 'vue-router';
 import SideBar from './components/layout/SideBar.vue';
 import Header from './components/layout/Header.vue';
-import Footer from './components/layout/Footer.vue';
+import Footer from './components/layout/Footer/Footer.vue';
 import DrawerPlayer from './components/DrawerPlayer/index.vue';
 import { useMusicPlayer } from './hooks/useMusicPlayer';
 

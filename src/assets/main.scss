@@ -80,6 +80,7 @@ html {
 .can-click {
   cursor: pointer;
   user-select: none;
+  outline: none;
   &.disabled {
     cursor: not-allowed;
   }

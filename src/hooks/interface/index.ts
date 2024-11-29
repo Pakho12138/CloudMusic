@@ -54,7 +54,7 @@ export interface MusicPlayer {
   commenDrawer : Ref<boolean>; // 评论抽屉的显示状态
   commentListData: Ref<Comment[]>; // 评论列表数据
   commenTotal: Ref<number>; // 评论总数
-  getCommentPlaylist: (pages: number) => Promise<void>; // 获取评论列表的方法
+  getCommentPlaylist: (isLoadMore?: boolean) => Promise<void>; // 获取评论列表的方法
   showDrawer : () => void; // 显示评论抽屉
   eqSettings: Ref<{ bass: number; mid: number; treble: number }>; // EQ 设置
   updateEQ: (band: 'bass' | 'mid' | 'treble', value: number) => void; // 更新EQ的方法
@@ -96,4 +96,56 @@ export interface Song {
   dt: number; //歌曲时长
   mv: number | null; // MV ID
   // 针对其他字段您可以继续添加
+}
+
+export interface Comment {
+  user: CommentUser
+  beReplied: any[] // 根据实际情况定义更具体的类型
+  commentId: number
+  commentLocationType: number
+  content: string
+  contentResource: any // 根据实际情况定义更具体的类型
+  decoration: any // 根据实际情况定义更具体的类型
+  expressionUrl: string | null
+  grade: any // 根据实际情况定义更具体的类型
+  ipLocation: IpLocation
+  ip: string | null
+  location: string
+  liked: boolean
+  likedCount: number
+  medal?: any // 根据实际情况定义更具体的类型
+  detailPage: string
+  wearPic: string
+  needDisplayTime: boolean
+  owner: boolean
+  parentCommentId: number
+  pendantData?: any // 根据实际情况定义更具体的类型
+  repliedMark?: any // 根据实际情况定义更具体的类型
+  richContent?: any // 根据实际情况定义更具体的类型
+  showFloorComment?: any // 根据实际情况定义更具体的类型
+  status: number
+  time: number // 时间戳
+  timeStr: string
+}
+
+interface CommentUser {
+  locationInfo: any // 根据实际情况定义更具体的类型
+  liveInfo: any // 根据实际情况定义更具体的类型
+  anonym: number
+  avatarDetail: any // 根据实际情况定义更具体的类型
+  userType: number
+  avatarUrl: string
+  nickname: string
+  userId: number
+  commonIdentity?: any // 根据实际情况定义更具体的类型
+  expertTags?: any // 根据实际情况定义更具体的类型
+  followed: boolean
+  mutual: boolean
+  remarkName?: string // 可选
+  socialUserId?: any // 根据实际情况定义更具体的类型
+}
+interface IpLocation {
+  ip: string | null
+  location: string
+  userId: number
 }

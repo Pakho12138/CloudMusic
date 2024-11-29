@@ -38,10 +38,18 @@
           </div>
 
           <el-avatar
+            v-if="userStore.userInfo?.avatarUrl"
             :src="userStore.userInfo.avatarUrl"
             class="mr-2"
             shape="circle"
             :size="32" />
+          <div
+            v-else
+            class="w-10 h-10 flex items-center justify-center rounded-[50%] bg-[--search-bg]">
+            <el-icon class="!text-[--inactive-color] !text-xl"
+              ><UserFilled
+            /></el-icon>
+          </div>
         </div>
       </div>
     </template>
@@ -187,11 +195,7 @@
       </div>
     </div>
 
-    <!-- <CommentPopup
-      v-model="commenDrawer"
-      :data="commentListData"
-      @DIntersect="getCommentPlaylist"
-    /> -->
+    <CommentPopup v-model="commenDrawer" />
 
     <template #footer>
       <div class="flex justify-end">
@@ -221,8 +225,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useSettingStore } from '@/stores/useSettingStore';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { useUserStore } from '@/stores/useUserStore';
-import { Api } from '@/utils/request';
-import { calculatePagination, formatNumber } from '@/utils/util';
+import { formatNumber } from '@/utils/util';
 import { Icon } from '@iconify/vue';
 import { useDebounceFn, useThrottleFn } from '@vueuse/core';
 import { inject, nextTick, onMounted, reactive, ref, toRefs, watch } from 'vue';
@@ -250,7 +253,6 @@ const {
   duration,
   changeCurrentTime,
   inputCurrentTime,
-  Loadlyrics,
   lyricsData,
   currentLyricIndex,
   setPlayMode,
@@ -286,18 +288,14 @@ function formatTime(seconds: number): string {
 
 // 播放上一首歌曲的处理函数
 function handlePlayPrevious() {
-  commentListData.value = []; // 清空评论列表
-  commenTotal.value = 0; // 重置评论总数
   playPrevious(); // 播放上一首歌曲
-  getCommentPlaylist(1); // 获取新的评论列表
+  getCommentPlaylist(); // 获取新的评论列表
 }
 
 // 播放下一首歌曲的处理函数
 function handlePlayNext() {
-  commentListData.value = []; // 清空评论列表
-  commenTotal.value = 0; // 重置评论总数
   playNext(); // 播放下一首歌曲
-  getCommentPlaylist(1); // 获取新的评论列表
+  getCommentPlaylist(); // 获取新的评论列表
 }
 
 function parseLyricInfo(lyricString: string) {
