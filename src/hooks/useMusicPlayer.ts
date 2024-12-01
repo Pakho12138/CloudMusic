@@ -2,7 +2,7 @@
 import { PlayMode } from '@/enum';
 import { Api } from '@/utils/request';
 import { ElNotification } from 'element-plus';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { parseAndMergeLyrics, type LyricData } from '@/utils/parseLyrics';
 import { useAudioStore } from '@/stores/useAudioStore';
 import type { Track } from './interface';
@@ -63,7 +63,7 @@ export function useMusicPlayer() {
       isLoading.value = true;
     };
     audio.oncanplaythrough = () => {
-      isLoading.value = false;
+      isLoading.value = isLoadingNew.value || false;
     };
     audio.ontimeupdate = useThrottleFn(() => {
       if (isChanging && currentTime.value == Math.round(audio.currentTime)) {
@@ -128,7 +128,7 @@ export function useMusicPlayer() {
 
   // 加载歌词
   async function Loadlyrics() {
-    if (!currentSong.value?.id || lyricsData.value?.lines?.length) return;
+    if (!currentSong.value?.id) return;
 
     // 初始化歌词当前坐标
     lyricsData.value = { lines: [] };
@@ -193,6 +193,15 @@ export function useMusicPlayer() {
     audio && audio.pause();
   }
 
+  // 重置音频
+  function resetAudio() {
+    if (audio) {
+      audio.pause();
+      audio.currentTime = currentTime.value = 0;
+      duration.value = 0;
+    }
+  }
+
   // 切换播放/暂停状态
   function togglePlayPause() {
     if (!currentSong.value?.id) return;
@@ -230,7 +239,6 @@ export function useMusicPlayer() {
         audioStore.setCurrentSong(nextIndex);
         getDetail();
         audio.src = currentSong.value.source; // 更新audio元素的资源地址
-        Loadlyrics();
         play();
         break;
     }
@@ -247,7 +255,6 @@ export function useMusicPlayer() {
     audioStore.setCurrentSong(previousIndex);
     getDetail();
     audio.src = currentSong.value.source; // 更新audio元素的资源地址
-    Loadlyrics();
     play();
   }
 
@@ -282,8 +289,21 @@ export function useMusicPlayer() {
   };
 
   // 添加播放歌曲的方法
-  const playSong = (song: Track) => {
-    if (!song?.source) {
+  const isLoadingNew = ref(false); // 新歌曲是否正在加载
+  const playSong = async (song: Track) => {
+    isLoading.value = true; // 设置加载状态
+    isLoadingNew.value = true; // 新歌曲正在加载
+    const res: any = await Api.get('song/url/v1', {
+      id: song.id,
+      level: 'exhigh',
+    });
+    if (res.code == 200) {
+      isLoadingNew.value = false; // 加载完成，设置加载状态
+      const data = res.data;
+      audio.src = data[0].url; // 确保您设置此歌曲的音频源
+      getDetail(); // 加载数据
+      play(); // 播放歌曲
+    } else {
       ElNotification({
         title: '错误',
         message: '播放失败',
@@ -291,8 +311,6 @@ export function useMusicPlayer() {
       });
       return;
     }
-    audio.src = song.source; // 确保您设置此歌曲的音频源
-    play(); // 播放歌曲
   };
 
   // 获取评论列表的函数，默认请求第一页，如果已有评论则不再请求
@@ -363,6 +381,7 @@ export function useMusicPlayer() {
     isPlaying,
     isLoading,
     play,
+    pause,
     playNext,
     playPrevious,
     togglePlayPause,
@@ -388,5 +407,6 @@ export function useMusicPlayer() {
     commenTotal,
     getCommentPlaylist,
     showDrawer,
+    resetAudio
   };
 }

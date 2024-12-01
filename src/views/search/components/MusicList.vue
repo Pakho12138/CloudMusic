@@ -76,7 +76,7 @@ import { Icon } from '@iconify/vue';
 import { inject, onMounted, reactive, ref, toRefs, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const { playSong } = inject('MusicPlayer') as MusicPlayer;
+const { playSong, resetAudio } = inject('MusicPlayer') as MusicPlayer;
 
 onMounted(() => {
 });
@@ -105,11 +105,12 @@ const cloudsearch = async () => {
 };
 
 const playMusic = async (row: Song) => {
+  resetAudio();
+
   const existingIndex = AudioStore.trackList.findIndex(existingTrack => existingTrack.id === row.id);
 
   if (existingIndex === -1) {
     try {
-      const { data } = await Api.get('song/url/v1', { id: row.id, level: 'exhigh' });
       const param: Track = {
         id: row.id,
         title: row.name,
@@ -117,7 +118,7 @@ const playMusic = async (row: Song) => {
         album: row.al.name,
         cover: row.al.picUrl,
         time: row.dt,
-        source: data[0].url,
+        source: '',
         mv: row.mv as number,
       };
 

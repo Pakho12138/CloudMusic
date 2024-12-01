@@ -32,6 +32,7 @@ export interface MusicPlayer {
   isPlaying: Ref<boolean>; // 播放状态
   isLoading: Ref<boolean>; // 加载状态
   play: () => void; // 播放音乐
+  pause: () => void; // 暂停音乐
   playNext: () => void; // 播放下一首歌曲
   playPrevious: () => void; // 播放上一首歌曲
   togglePlayPause: () => void; // 切换播放/暂停状态
@@ -56,6 +57,7 @@ export interface MusicPlayer {
   commenTotal: Ref<number>; // 评论总数
   getCommentPlaylist: (isLoadMore?: boolean) => Promise<void>; // 获取评论列表的方法
   showDrawer : () => void; // 显示评论抽屉
+  resetAudio : () => void; // 重置音频
   eqSettings: Ref<{ bass: number; mid: number; treble: number }>; // EQ 设置
   updateEQ: (band: 'bass' | 'mid' | 'treble', value: number) => void; // 更新EQ的方法
 }
