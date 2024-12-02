@@ -111,13 +111,37 @@ body {
   }
 }
 
-.el-popover {
+.el-popper, .el-popover {
   color: var(--theme-color) !important;
   background: var(--content-bg) !important;
   backdrop-filter: blur(20px);
   border-color: transparent !important;
+  overflow: hidden;
   .el-popper__arrow::before {
     background: transparent !important;
     border-color: transparent !important;
   }
+  .el-select-dropdown__list {
+    padding: 0;
+    overflow: hidden;
+    .el-select-dropdown__item {
+      color: var(--button-inactive);
+      &.is-hovering {
+        background-color: var(--theme-bg-color) !important;
+      }
+      &.is-selected {
+        color: var(--theme-color);
+      }
+    }
+  }
+}
+
+
+
+.el-select {
+  --el-fill-color-blank: var(--content-bg) !important;
+  --el-border-color: var(--content-bg) !important;
+  --el-border-color-hover: var(--theme-bg-color) !important;
+  --el-color-primary: var(--theme-bg-color) !important;
+  --el-input-text-color: var(--button-inactive) !important;
 }

@@ -1,12 +1,12 @@
 <template>
   <div class="sidebar-wrapper">
     <h5 class="side-title">Music</h5>
-    <el-menu default-active="0">
-      <el-menu-item index="0">
+    <el-menu :default-active="defaultActive" @select="handleSelect">
+      <el-menu-item index="/">
         <el-icon><Headset /></el-icon>
         <template #title>发现音乐</template>
       </el-menu-item>
-      <el-menu-item index="1">
+      <el-menu-item index="/mv">
         <el-icon><Film /></el-icon>
         <template #title>MV</template>
       </el-menu-item>
@@ -17,7 +17,16 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-onMounted(() => {});
+const defaultActive = ref('');
+const route = useRoute();
+onMounted(() => {
+  defaultActive.value = route.path;
+});
+
+const router = useRouter();
+const handleSelect = (idx: string) => {
+  router.replace(idx);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -45,7 +54,7 @@ onMounted(() => {});
         color: var(--theme-color);
         background: var(--hover-menu-bg);
       }
-      &+.el-menu-item {
+      & + .el-menu-item {
         margin-top: 4px;
       }
     }

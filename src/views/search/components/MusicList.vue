@@ -105,8 +105,6 @@ const cloudsearch = async () => {
 };
 
 const playMusic = async (row: Song) => {
-  resetAudio();
-
   const existingIndex = AudioStore.trackList.findIndex(existingTrack => existingTrack.id === row.id);
 
   if (existingIndex === -1) {

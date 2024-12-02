@@ -1,5 +1,5 @@
 <template>
-  <el-popover :width="450" trigger="click" placement="top-end">
+  <el-popover :width="450" trigger="click" placement="top-end" :offset="16">
     <div class="p-2">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center">
@@ -11,18 +11,24 @@
         <div
           class="can-click flex items-center cursor-pointer text-[var(--button-inactive)]"
           @click="audioStore.clearAllSong">
-          <Icon icon="material-symbols:delete-outline-rounded"
+          <Icon
+            icon="material-symbols:delete-outline-rounded"
             class="text-lg mr-1" />
           清空
         </div>
       </div>
 
-      <el-scrollbar class="!h-[300px]">
+      <el-scrollbar class="!h-[320px]">
         <ul class="space-y-1">
           <li
             v-for="(song, index) in audioStore.trackList"
             :key="index"
             class="flex items-center px-4 py-1 hover:bg-[var(--theme-bg-color)] rounded-lg transition justify-between cursor-pointer"
+            :class="
+              audioStore.currentSongIndex == index
+                ? 'bg-[var(--theme-bg-color)]'
+                : ''
+            "
             @click="playMusic(song.id)"
             @mouseover="mouseOverIndex = index"
             @mouseleave="mouseOverIndex = -1">
@@ -42,12 +48,22 @@
             </div>
 
             <!-- 默认显示时间 -->
-            <div v-show="mouseOverIndex !== index" class="text-[var(--button-inactive)]">
+            <div
+              v-show="
+                audioStore.currentSongIndex !== index &&
+                mouseOverIndex !== index
+              "
+              class="text-[var(--button-inactive)]">
               {{ formatMillisecondsToTime(song.time) }}
             </div>
             <!-- 高亮显示图标 -->
-            <div class="flex items-center" v-show="mouseOverIndex == index">
+            <div
+              class="flex items-center"
+              v-show="
+                audioStore.currentSongIndex == index || mouseOverIndex == index
+              ">
               <Icon
+                v-if="audioStore.currentSongIndex != index"
                 icon="mingcute:play-circle-line"
                 class="can-click text-lg text-[var(--button-inactive)]"
                 @click="playMusic(song.id)" />
@@ -67,7 +83,9 @@
     </div>
     <!-- 显示的图标 -->
     <template #reference>
-      <Icon class="can-click text-[var(--button-inactive)] size-[28px] ml-[10px]" icon="icon-park-solid:music-list" />
+      <Icon
+        class="can-click text-[var(--button-inactive)] size-[28px] ml-[10px]"
+        icon="icon-park-solid:music-list" />
     </template>
   </el-popover>
 </template>

@@ -291,6 +291,7 @@ export function useMusicPlayer() {
   // 添加播放歌曲的方法
   const isLoadingNew = ref(false); // 新歌曲是否正在加载
   const playSong = async (song: Track) => {
+    resetAudio();
     isLoading.value = true; // 设置加载状态
     isLoadingNew.value = true; // 新歌曲正在加载
     const res: any = await Api.get('song/url/v1', {
