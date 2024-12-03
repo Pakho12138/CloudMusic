@@ -5,14 +5,16 @@
       <div class="col-span-4 grid gap-6">
         <div class="grid gap-4">
           <div
-            class="rounded-xl overflow-hidden border aspect-video bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
-            <videoPlay
+            ref="observedElement"
+            class="relative rounded-xl overflow-hidden aspect-video bg-[var(--content-bg)] border-[var(--theme-bg-color)]">
+            <!-- <videoPlay
               width="100%"
               height="100%"
               :title="mvDetails.name"
               :src="mvUrls"
               :poster="mvDetails.cover"
-              type="video/mp4" />
+              type="video/mp4" /> -->
+            <div id="xgplayer"></div>
           </div>
           <div class="py-2 grid gap-4">
             <h1 class="text-2xl font-semibold line-clamp-2">
@@ -64,14 +66,13 @@
         </div>
         <div class="grid gap-8">
           <h2 class="font-semibold text-xl">
-            {{ mvCommentsList.total }} Comments
+            {{ mvCommentsList?.total || 0 }} Comments
           </h2>
           <div class="grid gap-6">
             <div
               class="text-sm flex items-start gap-4"
-              v-for="item in mvCommentsList.comments"
-              :key="item.id"
-              ref="observedElement">
+              v-for="item in mvCommentsList?.comments || []"
+              :key="item.id">
               <span
                 class="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border">
                 <el-avatar
@@ -112,7 +113,9 @@
             </div>
             <div
               class="text-xs text-gray-500 line-clamp-1 dark:text-gray-400 flex gap-1 items-center">
-              <Icon icon="material-symbols:android-now-playing-outline" class="text-base" />
+              <Icon
+                icon="material-symbols:android-now-playing-outline"
+                class="text-base" />
               {{ item.playCount }}
             </div>
           </div>
@@ -123,8 +126,8 @@
 </template>
 
 <script setup lang="ts">
-import 'vue3-video-play/dist/style.css';
-import { videoPlay } from 'vue3-video-play';
+import Player, { Events } from 'xgplayer';
+import 'xgplayer/dist/index.min.css';
 import { Icon } from '@iconify/vue';
 import {
   MVDetail,
@@ -133,6 +136,7 @@ import {
   SimilarPlaylistsPlaylist,
   CommentMVParams,
 } from './interface';
+import { useIntersectionObserver, useThrottleFn } from '@vueuse/core';
 
 const route = useRoute();
 
@@ -145,18 +149,6 @@ const state = reactive({
 
 const { mvUrls, mvDetails, mvCommentsList, mvs } = toRefs(state);
 
-// const observedElement = ref([])
-// // 使用hook并传入必要的参数
-// useIntersectionObserver(
-//   observedElement,
-//   {
-//     initialPageNum: 2, // 初始页码
-//     pageSize: 10, // 页面大小
-//     threshold: 0.1, // 可选阈值参数
-//   },
-//   handleIntersect
-// )
-
 // function handleIntersect(PageNum: number) {
 //   commentMV<CommentResponse>({
 //     offset: PageNum,
@@ -167,6 +159,7 @@ const { mvUrls, mvDetails, mvCommentsList, mvs } = toRefs(state);
 //   });
 // }
 
+let player: any;
 onMounted(() => {
   similarPlaylists();
 });
@@ -180,11 +173,17 @@ const similarPlaylists = async () => {
 
 const mvUrl = async (id: string) => {
   const res: any = await Api.get('/mv/url', { id });
+  if (res.code == 200) {
+    state.mvUrls = res.data.url;
+  }
   return res;
 };
 
 const mvDetail = async (id: string) => {
   const res: any = await Api.get('/mv/detail', { mvid: id });
+  if (res.code == 200) {
+    state.mvDetails = res.data;
+  }
   return res;
 };
 
@@ -193,20 +192,57 @@ const commentMV = async (params: CommentMVParams) => {
     id: params.id,
     ...calculatePagination({ limit: 30, offset: 1 }),
   });
+  if (res.code == 200) {
+    state.mvCommentsList = res;
+  }
   return res;
+};
+
+// const observedElement = ref([]);
+// // 元素是否进入视口
+// useIntersectionObserver(
+//   observedElement,
+//   useThrottleFn(([entry], observerElement) => {
+//     if (player) {
+//       // 获取pip插件实例
+//       const pipInstance = player.plugins.pip;
+//       const targetIsVisible = entry?.isIntersecting || false;
+//       console.log(targetIsVisible);
+
+//       if (targetIsVisible) {
+//         pipInstance.exitPIP();
+//       } else {
+//         pipInstance.isPIPAvailable() && pipInstance.requestPIP();
+//       }
+//     }
+//   }, 300)
+// );
+
+const initPlayer = url => {
+  const playerOpts = {
+    id: 'xgplayer',
+    url: url,
+    // width: '100%',
+    // height: '100%',
+    fluid: true,
+    autoplay: true,
+    poster: state.mvDetails.cover, // 封面图地址
+    miniprogress: true, // 是否启用mini进度条
+    download: true, // 是否启用下载按钮
+    lang: 'zh-cn', // 语言
+    pip: true, // 是否使用画中画插件
+  };
+  player = new Player(playerOpts);
 };
 
 watch(
   () => route.query.id,
   id => {
     if (typeof id == 'string') {
-      Promise.all([mvUrl(id), mvDetail(id), commentMV({ id })]).then(
-        ([result1, result2, result3]) => {
-          state.mvUrls = result1.data.url;
-          state.mvDetails = result2.data;
-          state.mvCommentsList = result3;
-        }
-      );
+      commentMV({ id });
+      Promise.all([mvUrl(id), mvDetail(id)]).then(() => {
+        initPlayer(state.mvUrls);
+      });
     }
   },
   { immediate: true }

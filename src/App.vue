@@ -18,7 +18,7 @@
         <router-view v-if="showPage"></router-view>
       </el-main>
     </el-container>
-    <el-footer>
+    <el-footer class="-z-[1]">
       <Footer @show="handleShow" />
     </el-footer>
 

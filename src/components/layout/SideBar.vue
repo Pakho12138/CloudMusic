@@ -20,7 +20,11 @@ import { onMounted, ref } from 'vue';
 const defaultActive = ref('');
 const route = useRoute();
 onMounted(() => {
-  defaultActive.value = route.path;
+  let path = route.path;
+  if (route.path.includes('video')) {
+    path = '/mv';
+  }
+  defaultActive.value = path;
 });
 
 const router = useRouter();
