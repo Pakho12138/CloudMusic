@@ -1,5 +1,7 @@
 <template>
   <div
+    v-infinite-scroll="loadMore"
+    ref="videoMainRef"
     class="container-wrapper w-full grid grid-rows-[auto_1fr_auto] gap-6 !px-4 pb-10">
     <main class="grid md:grid-cols-6 gap-10 items-start p-4 md:px-6">
       <div class="col-span-4 grid gap-6">
@@ -66,12 +68,12 @@
         </div>
         <div class="grid gap-8">
           <h2 class="font-semibold text-xl">
-            {{ mvCommentsList?.total || 0 }} Comments
+            {{ mvCommentsCount || 0 }} Comments
           </h2>
           <div class="grid gap-6">
             <div
               class="text-sm flex items-start gap-4"
-              v-for="item in mvCommentsList?.comments || []"
+              v-for="item in mvCommentsList || []"
               :key="item.id">
               <span
                 class="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border">
@@ -122,47 +124,41 @@
         </div>
       </div>
     </main>
+
+    <Icon
+      v-if="!isLoading && hasMore"
+      class="text-4xl text-[--button-inactive] mx-auto"
+      icon="svg-spinners:90-ring-with-bg" />
   </div>
 </template>
 
 <script setup lang="ts">
-import Player, { Events } from 'xgplayer';
+import Player from 'xgplayer';
 import 'xgplayer/dist/index.min.css';
 import { Icon } from '@iconify/vue';
-import {
-  MVDetail,
-  CommentResponse,
-  SimilarPlaylistsResponse,
-  SimilarPlaylistsPlaylist,
-  CommentMVParams,
-} from './interface';
-import { useIntersectionObserver, useThrottleFn } from '@vueuse/core';
+import { MVDetail, SimilarPlaylistsPlaylist } from './interface';
+import { useDebounceFn, useIntersectionObserver, useThrottleFn } from '@vueuse/core';
 
 const route = useRoute();
 
 const state = reactive({
   mvUrls: '',
   mvDetails: {} as MVDetail,
-  mvCommentsList: {} as CommentResponse,
+  mvCommentsList: [] as any,
+  mvCommentsCount: 0,
   mvs: [] as SimilarPlaylistsPlaylist[],
 });
 
-const { mvUrls, mvDetails, mvCommentsList, mvs } = toRefs(state);
-
-// function handleIntersect(PageNum: number) {
-//   commentMV<CommentResponse>({
-//     offset: PageNum,
-//     id: route.query.id as string,
-//   }).then(({ comments }) => {
-//     state.mvCommentsList.comments =
-//       state.mvCommentsList.comments.concat(comments);
-//   });
-// }
+const { mvUrls, mvDetails, mvCommentsList, mvCommentsCount, mvs } =
+  toRefs(state);
 
 let player: any;
 onMounted(() => {
   similarPlaylists();
 });
+onUnmounted(() => {
+  player && player.destroy();
+})
 
 const similarPlaylists = async () => {
   const res: any = await Api.get('/simi/mv', { mvid: route.query.id });
@@ -187,38 +183,75 @@ const mvDetail = async (id: string) => {
   return res;
 };
 
-const commentMV = async (params: CommentMVParams) => {
-  const res: any = await Api.get('/comment/mv', {
-    id: params.id,
-    ...calculatePagination({ limit: 30, offset: 1 }),
-  });
-  if (res.code == 200) {
-    state.mvCommentsList = res;
+let pages = 1;
+const commentMV = async (isLoadMore: boolean = false) => {
+  try {
+    if (isLoadMore) {
+      pages++; // 如果是加载更多，则增加页码
+    } else {
+      pages = 1; // 否则，重置页码
+      state.mvCommentsList = []; // 清空列表
+      state.mvCommentsCount = 0; // 清空评论数量
+    }
+
+    const res: any = await Api.get('/comment/mv', {
+      id: route.query.id,
+      ...calculatePagination({ limit: 30, offset: pages }),
+    });
+    if (res.code == 200) {
+      state.mvCommentsCount = res?.total || 0;
+      state.mvCommentsList = [
+        ...state.mvCommentsList,
+        ...(res?.comments || []),
+      ];
+      hasMore.value = res.more || false;
+    }
+    return res;
+  } catch (error) {
+  } finally {
+    isLoading.value = false;
+    isLoadingMore.value = false;
   }
-  return res;
 };
 
-// const observedElement = ref([]);
-// // 元素是否进入视口
-// useIntersectionObserver(
-//   observedElement,
-//   useThrottleFn(([entry], observerElement) => {
-//     if (player) {
-//       // 获取pip插件实例
-//       const pipInstance = player.plugins.pip;
-//       const targetIsVisible = entry?.isIntersecting || false;
-//       console.log(targetIsVisible);
+const hasMore = ref(true);
+const isLoading = ref(true);
+const isLoadingMore = ref(false);
+const loadMore = async () => {
+  if (!isLoading.value && !isLoadingMore.value && hasMore.value) {
+    isLoadingMore.value = true;
+    await commentMV(true);
+    isLoadingMore.value = false;
+  }
+};
 
-//       if (targetIsVisible) {
-//         pipInstance.exitPIP();
-//       } else {
-//         pipInstance.isPIPAvailable() && pipInstance.requestPIP();
-//       }
-//     }
-//   }, 300)
-// );
+const observedElement = ref([]);
+// 元素是否进入视口
+useIntersectionObserver(
+  observedElement,
+  useDebounceFn(([entry], observerElement) => {
+    if (player) {
+      // 获取pip插件实例
+      // const pipInstance = player.plugins.pip;
+      const pipInstance = player.plugins.miniscreen;
+      const targetIsVisible = entry?.isIntersecting || false;
+      console.log(targetIsVisible);
 
+      if (targetIsVisible) {
+        pipInstance.exitMini();
+        // pipInstance.exitPIP();
+      } else {
+        pipInstance.getMini();
+        // pipInstance.isPIPAvailable() && pipInstance.requestPIP();
+      }
+    }
+  }, 300)
+);
+
+const videoMainRef = ref();
 const initPlayer = url => {
+  console.dir(videoMainRef.value);
+  
   const playerOpts = {
     id: 'xgplayer',
     url: url,
@@ -230,7 +263,11 @@ const initPlayer = url => {
     miniprogress: true, // 是否启用mini进度条
     download: true, // 是否启用下载按钮
     lang: 'zh-cn', // 语言
-    pip: true, // 是否使用画中画插件
+    pip: true, // 是否使用浏览器画中画插件
+    mini: true, // 是否启用画中画插件
+    // miniscreen: {
+
+    // }
   };
   player = new Player(playerOpts);
 };
@@ -239,7 +276,7 @@ watch(
   () => route.query.id,
   id => {
     if (typeof id == 'string') {
-      commentMV({ id });
+      commentMV();
       Promise.all([mvUrl(id), mvDetail(id)]).then(() => {
         initPlayer(state.mvUrls);
       });
