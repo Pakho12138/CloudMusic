@@ -1,7 +1,9 @@
 <template>
   <div class="video-bg">
     <video width="320" height="240" autoplay loop muted>
-      <source src="https://assets.codepen.io/3364143/7btrrd.mp4" type="video/mp4" />
+      <source
+        src="https://assets.codepen.io/3364143/7btrrd.mp4"
+        type="video/mp4" />
       Your browser does not support the video tag.
     </video>
   </div>
@@ -18,7 +20,7 @@
         <router-view v-if="showPage"></router-view>
       </el-main>
     </el-container>
-    <el-footer class="-z-[1]">
+    <el-footer v-show="showFooter()" class="-z-[1]">
       <Footer @show="handleShow" />
     </el-footer>
 
@@ -28,7 +30,7 @@
 
 <script setup lang="ts" name="App">
 import { provide, ref, nextTick } from 'vue';
-import { RouterLink, RouterView } from 'vue-router';
+import { RouterView } from 'vue-router';
 import SideBar from './components/layout/SideBar.vue';
 import Header from './components/layout/Header.vue';
 import Footer from './components/layout/Footer/Footer.vue';
@@ -52,6 +54,11 @@ const handleShow = () => {
 };
 // 共享播放器状态
 provide('MusicPlayer', useMusicPlayer());
+
+const route = useRoute();
+const showFooter = () => {
+  return route?.name != 'video';
+};
 </script>
 
 <style>

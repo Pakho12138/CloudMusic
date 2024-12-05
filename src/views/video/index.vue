@@ -330,7 +330,7 @@ watch(
 
 <style lang="scss" scoped>
 :deep(.xgplayer-mini) {
-  inset: auto 10px 70px auto !important;
+  inset: auto 10px 10px auto !important;
   border-radius: 10px;
   .xg-mini-layer {
     cursor: default;
