@@ -131,9 +131,11 @@ import 'xgplayer/dist/index.min.css';
 import { Icon } from '@iconify/vue';
 import { MVDetail, SimilarPlaylistsPlaylist } from './interface';
 import { useDebounceFn, useIntersectionObserver } from '@vueuse/core';
+import { MusicPlayer } from '@/hooks/interface';
+
+const musicPlayer = inject('MusicPlayer') as MusicPlayer;
 
 const route = useRoute();
-
 const state = reactive({
   mvUrls: '',
   mvDetails: {} as MVDetail,
@@ -303,6 +305,7 @@ const initPlayer = url => {
   player = new Player(playerOpts);
 
   player.on(Events.PLAY, () => {
+    musicPlayer.isPlaying && musicPlayer.pause();
     isPlaying.value = true;
   });
 
