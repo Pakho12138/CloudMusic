@@ -9,13 +9,6 @@
           <div
             ref="observedElement"
             class="relative rounded-xl overflow-hidden aspect-video bg-[var(--content-bg)] border-[var(--theme-bg-color)]">
-            <!-- <videoPlay
-              width="100%"
-              height="100%"
-              :title="mvDetails.name"
-              :src="mvUrls"
-              :poster="mvDetails.cover"
-              type="video/mp4" /> -->
             <div id="xgplayer"></div>
           </div>
           <div class="py-2 grid gap-4">
@@ -133,11 +126,11 @@
 </template>
 
 <script setup lang="ts">
-import Player from 'xgplayer';
+import Player, { Events } from 'xgplayer';
 import 'xgplayer/dist/index.min.css';
 import { Icon } from '@iconify/vue';
 import { MVDetail, SimilarPlaylistsPlaylist } from './interface';
-import { useDebounceFn, useIntersectionObserver, useThrottleFn } from '@vueuse/core';
+import { useDebounceFn, useIntersectionObserver } from '@vueuse/core';
 
 const route = useRoute();
 
@@ -149,16 +142,43 @@ const state = reactive({
   mvs: [] as SimilarPlaylistsPlaylist[],
 });
 
-const { mvUrls, mvDetails, mvCommentsList, mvCommentsCount, mvs } =
+const { mvDetails, mvCommentsList, mvCommentsCount, mvs } =
   toRefs(state);
 
 let player: any;
+const videoMainRef = ref();
+const observedElement = ref([]);
 onMounted(() => {
   similarPlaylists();
+  // 元素是否进入视口
+  useIntersectionObserver(
+    observedElement,
+    useDebounceFn(([entry], observerElement) => {
+      if (player) {
+        // 获取画中画插件实例
+        const pipInstance = player.plugins.pip;
+        // 获取小屏插件实例
+        const miniInstance = player.plugins.miniscreen;
+        const targetIsVisible = entry?.isIntersecting || false;
+        if (targetIsVisible) {
+          miniInstance.exitMini();
+          // pipInstance.exitPIP();
+        } else {
+          isPlaying.value && !pipInstance.isPip && miniInstance.getMini();
+          // pipInstance.isPIPAvailable() && pipInstance.requestPIP();
+        }
+      }
+    }, 300),
+    // {
+    //   root: videoMainRef.value,
+    //   threshold: 0,
+    //   rootMargin: '60px 0px 0px 0px',
+    // }
+  );
 });
 onUnmounted(() => {
   player && player.destroy();
-})
+});
 
 const similarPlaylists = async () => {
   const res: any = await Api.get('/simi/mv', { mvid: route.query.id });
@@ -225,33 +245,8 @@ const loadMore = async () => {
   }
 };
 
-const observedElement = ref([]);
-// 元素是否进入视口
-useIntersectionObserver(
-  observedElement,
-  useDebounceFn(([entry], observerElement) => {
-    if (player) {
-      // 获取pip插件实例
-      // const pipInstance = player.plugins.pip;
-      const pipInstance = player.plugins.miniscreen;
-      const targetIsVisible = entry?.isIntersecting || false;
-      console.log(targetIsVisible);
-
-      if (targetIsVisible) {
-        pipInstance.exitMini();
-        // pipInstance.exitPIP();
-      } else {
-        pipInstance.getMini();
-        // pipInstance.isPIPAvailable() && pipInstance.requestPIP();
-      }
-    }
-  }, 300)
-);
-
-const videoMainRef = ref();
+const isPlaying = ref(false);
 const initPlayer = url => {
-  console.dir(videoMainRef.value);
-  
   const playerOpts = {
     id: 'xgplayer',
     url: url,
@@ -261,15 +256,59 @@ const initPlayer = url => {
     autoplay: true,
     poster: state.mvDetails.cover, // 封面图地址
     miniprogress: true, // 是否启用mini进度条
-    download: true, // 是否启用下载按钮
     lang: 'zh-cn', // 语言
-    pip: true, // 是否使用浏览器画中画插件
-    mini: true, // 是否启用画中画插件
-    // miniscreen: {
-
-    // }
+    pip: {
+      // 是否使用浏览器画中画插件
+      showIcon: true,
+      index: 1,
+    },
+    miniscreen: {
+      // 小屏幕插件配置
+      disable: false, // 是否禁用小屏幕插件
+      isShowIcon: false, // 是否显示小屏幕按钮
+      disableDrag: true, // 是否禁用拖拽
+    },
+    download: true, // 是否显示下载按钮
+    playbackRate: {
+      // 倍速按钮
+      list: [
+        {
+          text: '0.5X',
+          rate: 0.5,
+        },
+        {
+          text: '0.75X',
+          rate: 0.75,
+        },
+        {
+          text: '1X',
+          iconText: '倍速',
+          rate: 1,
+        },
+        {
+          text: '1.25X',
+          rate: 1.25,
+        },
+        {
+          text: '1.5X',
+          rate: 1.5,
+        },
+        {
+          text: '2X',
+          rate: 2,
+        },
+      ],
+    },
   };
   player = new Player(playerOpts);
+
+  player.on(Events.PLAY, () => {
+    isPlaying.value = true;
+  });
+
+  player.on(Events.PAUSE, () => {
+    isPlaying.value = false;
+  });
 };
 
 watch(
@@ -285,3 +324,18 @@ watch(
   { immediate: true }
 );
 </script>
+
+<style lang="scss" scoped>
+:deep(.xgplayer-mini) {
+  inset: auto 10px 70px auto !important;
+  border-radius: 10px;
+  .xg-mini-layer {
+    cursor: default;
+    .mini-cancel-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+</style>
