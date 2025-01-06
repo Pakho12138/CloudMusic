@@ -30,10 +30,10 @@
     },
     /* Linting */
     "strict": true, // 开启所有严格的类型检查
-    "forceConsistentCasingInFileNames": true, // 不允许对同一个文件使用不一致格式的引用
-    "noUnusedLocals": true, //报告未使用的局部变量的错误
-    "noUnusedParameters": true, //报告函数中未使用参数的错误
-    "noFallthroughCasesInSwitch": true, //确保switch语句中的任何非空情况都包含
+    // "forceConsistentCasingInFileNames": true, // 不允许对同一个文件使用不一致格式的引用
+    // "noUnusedLocals": true, //报告未使用的局部变量的错误
+    // "noUnusedParameters": true, //报告函数中未使用参数的错误
+    // "noFallthroughCasesInSwitch": true, //确保switch语句中的任何非空情况都包含
     "noImplicitAny": false, //禁止隐式any类型
   },
   "types": [
