@@ -2,6 +2,8 @@
   <TabBar v-model="curTab" :tabs="tabs" />
 
   <Recommend v-if="curTab == 'recommend'" />
+  
+  <view v-else class="container-wrapper flex-center"> 暂未开放 </view>
 </template>
 
 <script setup lang="ts">

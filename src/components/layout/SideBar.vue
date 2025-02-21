@@ -2,11 +2,11 @@
   <div class="sidebar-wrapper">
     <h5 class="side-title">Music</h5>
     <el-menu :default-active="defaultActive" @select="handleSelect">
-      <el-menu-item index="/">
+      <el-menu-item index="home">
         <el-icon><Headset /></el-icon>
         <template #title>发现音乐</template>
       </el-menu-item>
-      <el-menu-item index="/mv">
+      <el-menu-item index="mv">
         <el-icon><Film /></el-icon>
         <template #title>MV</template>
       </el-menu-item>
@@ -20,17 +20,20 @@ import { onMounted, ref } from 'vue';
 const defaultActive = ref('');
 const route = useRoute();
 onMounted(() => {
-  let path = route.path;
-  if (route.path.includes('video')) {
-    path = '/mv';
-  }
-  defaultActive.value = path;
 });
 
 const router = useRouter();
 const handleSelect = (idx: string) => {
-  router.replace(idx);
+  router.replace({name: idx});
 };
+
+watch(
+  () => route.name,
+  newKw => {
+    defaultActive.value = newKw as string;
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>

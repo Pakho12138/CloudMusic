@@ -5,8 +5,11 @@
     :direction="direction"
     class="!h-full !w-[100%] md:!w-[50%] backdrop-blur-[20px]"
     @opened="isOpened = true"
-    style="--dropdown-bg: var(--theme-bg-color);">
-    <div v-infinite-scroll="loadMore" :infinite-scroll-distance="100" class="w-full h-full overflow-y-auto">
+    style="--dropdown-bg: var(--theme-bg-color)">
+    <div
+      v-infinite-scroll="loadMore"
+      :infinite-scroll-distance="100"
+      class="w-full h-full overflow-y-auto">
       <div
         class="grid gap-6 grid-cols-[repeat(auto-fill,minmax(320px,1fr))] mx-10 mt-2 mb-8">
         <div
@@ -22,22 +25,21 @@
                   :src="item.user.avatarUrl + '?param=60y60'"
                   :alt="item.user.nickname" />
                 <div>
-                  <div class="font-medium text-base">
+                  <div class="font-bold text-sm">
                     {{ item.user.nickname }}
                   </div>
-                  <div class="text-xs text-muted-foreground">
+                  <div class="text-xs text-white opacity-80 mt-1">
                     {{ item.timeStr }}
                   </div>
                 </div>
               </div>
-              <p class="text-base line-clamp-2 min-h-12 px-2">
+              <p class="text-sm whitespace-pre-wrap px-2" :title="item.content">
                 {{ item.content }}
               </p>
             </div>
             <div
-              class="flex justify-between items-center text-xs text-gray-500 mt-4">
-              <span>{{ item.timeStr }}</span
-              ><span>IP: {{ item.ipLocation.location }}</span>
+              class="flex justify-end items-center text-xs text-white opacity-50 mt-4">
+              <span>IP: {{ item.ipLocation.location }}</span>
             </div>
           </div>
         </div>
@@ -80,6 +82,4 @@ const loadMore = async () => {
 };
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

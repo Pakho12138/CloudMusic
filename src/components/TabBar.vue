@@ -18,9 +18,10 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'change']);
 const changeTab = (name: string) => {
   emit('update:modelValue', name);
+  emit('change', name);
 };
 
 onMounted(() => {});
