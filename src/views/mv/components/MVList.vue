@@ -6,7 +6,7 @@
     class="container-wrapper">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-4">
       <div
-        class="rounded-lg bg-[var(--content-bg)] bg-card text-card-foreground shadow-sm overflow-hidden cursor-pointer hover:bg-[var(--theme-bg-color)] transition-all duration-300"
+        class="item-card rounded-lg bg-[var(--content-bg)] bg-card text-card-foreground shadow-sm overflow-hidden cursor-pointer hover:bg-[var(--theme-bg-color)] transition-all duration-300"
         v-for="item in mvList"
         :key="item.id"
         @click="router.push(`/video?id=${item.id}`)">
@@ -16,7 +16,7 @@
               alt="MV Thumbnail"
               width="320"
               height="180"
-              class="w-full object-cover"
+              class="w-full object-cover transition-all duration-300"
               :src="item.cover"
               style="aspect-ratio: 320 / 180; object-fit: cover" />
           </div>
@@ -26,10 +26,10 @@
               :title="item.name">
               {{ item.name }}
             </h2>
-            <p class="text-sm text-muted-foreground mb-2">
+            <p class="text-sm text-muted-foreground mb-2 opacity-70">
               {{ item.artistName }}
             </p>
-            <p class="text-xs text-muted-foreground">
+            <p class="text-xs text-muted-foreground opacity-50 text-right">
               {{ item.playCount }} views
             </p>
           </div>
@@ -148,4 +148,8 @@ defineExpose({
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.item-card:hover img {
+  filter: brightness(0.8);
+}
+</style>
