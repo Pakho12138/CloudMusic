@@ -1,11 +1,16 @@
 <template>
-  <div class="video-bg">
+  <!-- <div class="video-bg">
     <video width="320" height="240" autoplay loop muted>
       <source
-        src="https://assets.codepen.io/3364143/7btrrd.mp4"
+        src="https://ghcdn.pages.dev/video/bg.mp4"
         type="video/mp4" />
       Your browser does not support the video tag.
     </video>
+  </div> -->
+
+  <div class="background-container">
+    <div class="gradient-bg"></div>
+    <div class="gradient-bg"></div>
   </div>
 
   <el-container class="app-main">
@@ -115,6 +120,46 @@ const showFooter = () => {
       --el-footer-padding: 0;
       border-top: 1px solid var(--border-color);
     }
+  }
+}
+
+/* 背景层容器 */
+.background-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vw;
+  z-index: -1;
+}
+
+/* 渐变背景层 */
+.gradient-bg {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, #ff0080, #00ffff, #8000ff);
+  animation: rotate-gradient 20s linear infinite;
+  opacity: 0.6;
+  filter: blur(60px);
+}
+
+.gradient-bg:nth-child(2) {
+  background: linear-gradient(135deg, #ff8c00, #ff0080, #00ffcc);
+  animation-duration: 25s;
+  animation-direction: reverse;
+  opacity: 0.5;
+}
+
+/* 动画定义 */
+@keyframes rotate-gradient {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 </style>

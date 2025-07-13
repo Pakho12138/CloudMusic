@@ -62,7 +62,7 @@
         :class="{ active: isLike }"
         icon="solar:heart-bold"
         @click="handleLike" />
-      <Icon class="btn-download can-click" icon="material-symbols:download" />
+      <Icon class="btn-download can-click" icon="material-symbols:download" @click="downLoadMusic()" />
       
       <LocalhostSong />
     </div>
@@ -86,6 +86,7 @@ const {
   changeCurrentTime,
   inputCurrentTime,
   setPlayMode,
+  downLoadMusic
 } = inject('MusicPlayer') as MusicPlayer;
 
 const emit = defineEmits(['show']);

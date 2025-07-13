@@ -27,12 +27,12 @@ instance.interceptors.request.use(
 // 添加响应拦截器
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
-    const { code, message } = response.data;
+    const { code, msg } = response.data;
     if (code === 200) {
       return response.data;
     }
-    ElMessage.error(message);
-    return Promise.reject(new Error(message));
+    ElMessage.error(msg);
+    return Promise.reject(new Error(msg));
   },
   (error: AxiosError) => {
     let message = '';

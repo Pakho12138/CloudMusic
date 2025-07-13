@@ -107,7 +107,7 @@ import { ElNotification } from 'element-plus';
 import { inject, onMounted, reactive, ref, toRefs, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const { playSong, resetAudio } = inject('MusicPlayer') as MusicPlayer;
+const { playSong, resetAudio, downLoadMusic } = inject('MusicPlayer') as MusicPlayer;
 
 const props = defineProps({
   keywords: {
@@ -196,36 +196,6 @@ const playMusic = async (row: Song) => {
   }
 };
 
-const downLoadMusic = (row: Song) => {
-  Api.get('song/url/v1', { id: row.id, level: 'exhigh' }).then(({ data }) => {
-    const musicUrl = data[0].url;
-
-    // 发起请求以获取音乐文件的二进制数据
-    fetch(musicUrl)
-      .then(response => response.blob()) // 将响应转换为 blob
-      .then(blob => {
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob); // 创建blob URL
-
-        // 设置下载链接
-        link.href = url;
-        link.setAttribute(
-          'download',
-          `${row.name} - ${row.ar.map(item => item.name).join(' ')}`
-        ); // 修改下载的文件名
-        document.body.appendChild(link); // 将链接添加到DOM中（临时）
-        link.click(); // 触发点击下载
-
-        // 清理 URL 对象和链接
-        URL.revokeObjectURL(url);
-        document.body.removeChild(link); // 删除链接
-      })
-      .catch(error => {
-        console.error('Download failed:', error);
-      });
-  });
-};
-
 const handleSizeChange = (Size: number) => {
   getData();
 };
@@ -236,7 +206,7 @@ const handleCurrentChange = (current: number) => {
 
 defineExpose({
   getData,
-  tableData
+  tableData,
 });
 </script>
 

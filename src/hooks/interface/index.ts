@@ -60,6 +60,7 @@ export interface MusicPlayer {
   resetAudio : () => void; // 重置音频
   eqSettings: Ref<{ bass: number; mid: number; treble: number }>; // EQ 设置
   updateEQ: (band: 'bass' | 'mid' | 'treble', value: number) => void; // 更新EQ的方法
+  downLoadMusic: (row?: any) => void; // 下载音乐
 }
 
 export interface Params {

@@ -5,7 +5,7 @@ import { ElNotification } from 'element-plus';
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { parseAndMergeLyrics, type LyricData } from '@/utils/parseLyrics';
 import { useAudioStore } from '@/stores/useAudioStore';
-import type { Track } from './interface';
+import type { Song, Track } from './interface';
 import { useThrottleFn } from '@vueuse/core';
 import { calculatePagination } from '@/utils/util';
 
@@ -112,9 +112,10 @@ export function useMusicPlayer() {
         if (!currentSong.value?.id) return;
 
         // 尝试获取新的音源地址，然后重新播放
-        const { data } = await Api.get('song/url/v1', {
+        const { data } = await Api.get('song/url', {
           id: currentSong.value.id,
-          level: 'exhigh',
+          level: 'standard',
+          br: 128000,
         });
         audio.src = data[0].url;
         audioStore.setCurrentSongUrl(data[0].url);
@@ -294,9 +295,10 @@ export function useMusicPlayer() {
     resetAudio();
     isLoading.value = true; // 设置加载状态
     isLoadingNew.value = true; // 新歌曲正在加载
-    const res: any = await Api.get('song/url/v1', {
+    const res: any = await Api.get('song/url', {
       id: song.id,
-      level: 'exhigh',
+      level: 'standard',
+      br: 128000,
     });
     if (res.code == 200) {
       isLoadingNew.value = false; // 加载完成，设置加载状态
@@ -377,6 +379,42 @@ export function useMusicPlayer() {
     // trebleFilter.connect(audioContext.destination);
   };
 
+  const downLoadMusic = (row: any = currentSong.value) => {
+    Api.get('song/url', { id: row.id, level: 'standard', br: 128000 }).then(
+      ({ data }) => {
+        const musicUrl = data[0].url;
+
+        // 发起请求以获取音乐文件的二进制数据
+        fetch(musicUrl)
+          .then(response => response.blob()) // 将响应转换为 blob
+          .then(blob => {
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob); // 创建blob URL
+
+            // 设置下载链接
+            link.href = url;
+            if (row.ar) {
+              link.setAttribute(
+                'download',
+                `${row.ar.map(item => item.name).join(' ')} - ${row.name}`
+              ); // 修改下载的文件名
+            } else {
+              link.setAttribute('download', `${row.singer} - ${row.title}`); // 修改下载的文件名
+            }
+            document.body.appendChild(link); // 将链接添加到DOM中（临时）
+            link.click(); // 触发点击下载
+
+            // 清理 URL 对象和链接
+            URL.revokeObjectURL(url);
+            document.body.removeChild(link); // 删除链接
+          })
+          .catch(error => {
+            console.error('Download failed:', error);
+          });
+      }
+    );
+  };
+
   return {
     currentSong,
     isPlaying,
@@ -408,6 +446,7 @@ export function useMusicPlayer() {
     commenTotal,
     getCommentPlaylist,
     showDrawer,
-    resetAudio
+    resetAudio,
+    downLoadMusic,
   };
 }
