@@ -91,14 +91,13 @@ const showFooter = () => {
   }
   .app-main {
     background-color: var(--theme-bg-color);
-    max-width: 1250px;
-    max-height: 860px;
+    max-height: 800px;
     height: 90vh;
+    aspect-ratio: 25 / 16;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
-    width: 100%;
     border-radius: 14px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);

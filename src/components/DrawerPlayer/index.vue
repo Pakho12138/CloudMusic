@@ -55,9 +55,11 @@
     </template>
 
     <div class="flex h-full w-full flex-col gap-3 px-6 py-2">
-      <div class="flex flex-row flex-1 items-center justify-between gap-5">
+      <div
+        class="flex flex-row flex-1 items-center justify-between gap-5 overflow-hidden">
         <div
-          class="md:flex-[50%] md:max-w-[50%] flex-1 max-w-full flex items-center justify-center">
+          class="md:flex-[50%] md:max-w-[50%] flex-1 max-w-full flex items-center justify-center"
+          :style="{ transform: `scale(${scaleRatio})` }">
           <div class="items-center justify-center flex flex-col w-full">
             <div
               :class="`music-player-container ${
@@ -156,6 +158,7 @@
             <div
               class="mask-gradient relative !h-[400px] overflow-y-auto scroll-smooth w-full"
               ref="scrollContainer"
+              :style="{ transform: `scale(${scaleRatio})` }"
               @scroll="handleScroll">
               <div class="lyric-placeholder"></div>
               <ul
@@ -265,8 +268,36 @@ const {
   showDrawer,
 } = inject('MusicPlayer') as MusicPlayer;
 
+// 定义初始宽度和缩放比例
+const initialWidth = ref(0);
+const scaleRatio = ref(1);
+// 定义 app-main 元素的引用
+const appMainRef = ref<HTMLElement | null>(null);
+
+// 处理窗口大小变化
+const handleResize = () => {
+  if (appMainRef.value) {
+    const currentWidth = appMainRef.value.offsetWidth;
+    scaleRatio.value = currentWidth / initialWidth.value;
+  }
+};
+
 onMounted(() => {
-  setInterval(updateTime, 1000); // 每秒更新一次本地时间
+  // 获取 app-main 元素
+  appMainRef.value = document.querySelector('.app-main') as HTMLElement;
+  if (appMainRef.value) {
+    // 初始化时记录初始宽度
+    initialWidth.value = appMainRef.value.offsetWidth;
+    // 监听窗口大小变化
+    window.addEventListener('resize', handleResize);
+  }
+  // 每秒更新一次本地时间
+  setInterval(updateTime, 1000);
+});
+
+onUnmounted(() => {
+  // 组件卸载时移除监听
+  window.removeEventListener('resize', handleResize);
 });
 
 const localeCurrentTime = ref(new Date().toLocaleTimeString().slice(0, 5));
@@ -357,8 +388,8 @@ defineExpose({
 <style lang="scss" scoped>
 .music-player-container {
   display: inline-block;
-  height: 315px;
-  min-width: 325px;
+  height: 300px;
+  min-width: 300px;
 }
 
 .mask-gradient {
@@ -387,9 +418,9 @@ defineExpose({
 // .album
 .album-art {
   background: #fff var(--track-cover) center / cover no-repeat;
-  height: 315px;
+  height: 300px;
   position: relative;
-  width: 325px;
+  width: 300px;
   z-index: 10;
   --track-cover: var(--track-cover-url, none);
 }
@@ -403,11 +434,13 @@ defineExpose({
   background-repeat: no-repeat;
   border-radius: 100%;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-  height: 300px;
-  left: 5%;
+  height: 94%;
+  width: auto;
+  aspect-ratio: 1 / 1;
   position: absolute;
-  top: 8px;
-  width: 300px;
+  left: 5%;
+  top: 50%;
+  translate: 0 -50%;
   z-index: 5;
   will-change: transform, left;
   --track-cover: var(--track-cover-url, none);
