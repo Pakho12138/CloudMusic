@@ -75,12 +75,14 @@ const toSearch = () => {
   const kw = keyWord.value || searchKW.value.realkeyword;
   kw && router.push(`/search?kw=${kw}`);
 };
+
 const login = () => {
   ElNotification({
     title: '提示',
     message: '暂未开放',
     type: 'warning',
   });
+  // userStore.openLoginDialog();
 };
 </script>
 

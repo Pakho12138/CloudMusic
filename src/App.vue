@@ -13,7 +13,9 @@
     <div class="gradient-bg"></div>
   </div>
 
-  <el-container class="app-main">
+  <el-container
+    class="app-main"
+    :class="{ 'is-login': userStore.loginDialogVisible }">
     <el-header>
       <Header />
     </el-header>
@@ -31,6 +33,10 @@
 
     <DrawerPlayer ref="DrawerPlayerRef" />
   </el-container>
+
+  <LoginDialog
+    v-model="userStore.loginDialogVisible"
+    @loginSuccess="handleLoginSuccess" />
 </template>
 
 <script setup lang="ts" name="App">
@@ -41,7 +47,10 @@ import Header from './components/layout/Header.vue';
 import Footer from './components/layout/Footer/Footer.vue';
 import DrawerPlayer from './components/DrawerPlayer/index.vue';
 import { useMusicPlayer } from './hooks/useMusicPlayer';
+import LoginDialog from './components/LoginDialog.vue';
+import { useUserStore } from './stores/useUserStore';
 
+const userStore = useUserStore();
 const showPage = ref<boolean>(true);
 const onRefresh = () => {
   showPage.value = false;
@@ -63,6 +72,12 @@ provide('MusicPlayer', useMusicPlayer());
 const route = useRoute();
 const showFooter = () => {
   return route?.name != 'video';
+};
+
+// 处理登录成功事件
+const handleLoginSuccess = (loginInfo: any) => {
+  console.log('登录成功', loginInfo);
+  // 这里可以添加登录成功后的逻辑
 };
 </script>
 
@@ -103,6 +118,13 @@ const showFooter = () => {
     -webkit-backdrop-filter: blur(20px);
     font-size: 15px;
     font-weight: 500;
+    opacity: 1;
+    filter: blur(0px);
+    transition: all 0.3s;
+    &.is-login {
+      opacity: 0.3;
+      filter: blur(3px);
+    }
     .el-header {
       padding: 0;
     }

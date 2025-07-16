@@ -1,9 +1,12 @@
 <template>
   <TabBar v-model="curTab" :tabs="tabs" />
 
-  <Recommend v-if="curTab == 'recommend'" />
-  
-  <view v-else class="container-wrapper flex-center"> 暂未开放 </view>
+  <!-- 使用 KeepAlive 缓存组件 -->
+  <KeepAlive>
+    <Recommend v-if="curTab === 'recommend'" />
+    
+    <view v-else class="container-wrapper flex-center"> 暂未开放 </view>
+  </KeepAlive>
 </template>
 
 <script setup lang="ts">
