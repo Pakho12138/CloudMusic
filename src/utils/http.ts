@@ -1,5 +1,10 @@
 import axios from 'axios';
-import type { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import type {
+  AxiosError,
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios';
 import { ElMessage } from 'element-plus';
 // 自定义axios示例
 const instance: AxiosInstance = axios.create({
@@ -27,12 +32,12 @@ instance.interceptors.request.use(
 // 添加响应拦截器
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
-    const { code, msg } = response.data;
-    if (code === 200) {
+    const { code, message } = response.data;
+    if ([200, 800, 801, 802, 803].includes(code)) {
       return response.data;
     }
-    ElMessage.error(msg);
-    return Promise.reject(new Error(msg));
+    ElMessage.error(message);
+    return Promise.reject(new Error(message));
   },
   (error: AxiosError) => {
     let message = '';
@@ -49,7 +54,7 @@ instance.interceptors.response.use(
         message = '服务器繁忙';
         break;
       default:
-        message = '网络链接故障';
+        message = '请求失败';
     }
     ElMessage.error(message);
     return Promise.reject(error);

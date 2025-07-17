@@ -7,14 +7,39 @@
       @click.self="handleCloseLoginDialog">
       <div class="login-dialog">
         <div class="dialog-body">
-          <TabBar v-model="curTab" :tabs="tabs" />
+          <TabBar v-model="curTab" :tabs="tabs" @change="changeTab" />
 
           <!-- 二维码登录 -->
           <div v-if="curTab === 'qrcode'" class="dialog-content">
-            <div class="w-[180px] h-[180px] bg-white" v-loading="isQrLoading">
+            <!-- 等待扫描 -->
+            <template v-if="!scanSuccess">
+              <div class="w-[180px] h-[180px] bg-white" v-loading="isQrLoading">
                 <img v-if="qrImg" :src="qrImg" alt="二维码" />
-            </div>
-            <div class="text-base mt-4">使用<b class="text-[var(--el-color-primary)]"> 网易云音乐APP </b>扫码登录</div>
+              </div>
+              <div class="text-base mt-4">
+                使用<b class="text-[var(--el-color-primary)]"> 网易云音乐APP </b
+                >扫码登录
+              </div>
+            </template>
+            <!-- 扫描成功 -->
+            <template v-else>
+              <div class="text-center mb-4 flex flex-col items-center">
+                <img
+                  v-if="avatarUrl"
+                  class="w-28 h-28 rounded-[50%] mb-2"
+                  :src="avatarUrl"
+                  alt="用户头像" />
+                <el-icon
+                  v-else
+                  class="!text-[7rem] !text-[var(--el-color-success)] mb-2"
+                  ><SuccessFilled
+                /></el-icon>
+                <div class="text-xl font-bold mt-2">扫描成功</div>
+                <div class="text-base mt-1 text-[var(--button-inactive)]">
+                  请在手机上确认登录
+                </div>
+              </div>
+            </template>
           </div>
 
           <!-- 验证码登录 -->
@@ -42,7 +67,7 @@
             </el-form>
 
             <el-button
-              class="w-3/4 mt-6"
+              class="w-1/2 mt-6"
               type="primary"
               size="large"
               @click="handleLogin"
@@ -76,12 +101,28 @@ watch(
   async newValue => {
     loginDialogVisible.value = newValue;
     if (newValue) {
+      scanSuccess.value = false;
+      avatarUrl.value = '';
+      curTab.value = 'qrcode';
       isQrLoading.value = true;
-      !uniKey.value && await getQrKey();
+      !uniKey.value && (await getQrKey());
       createQrCode();
+    } else {
+      clearInterval(qrInterval);
+      qrInterval = null;
     }
   }
 );
+
+onMounted(() => {});
+
+const changeTab = (tab: string) => {
+  if (tab == 'qrcode') {
+    checkQrCodeInterval();
+  } else {
+    clearInterval(qrInterval);
+  }
+};
 
 const isQrLoading = ref(true);
 const uniKey = ref('');
@@ -92,16 +133,54 @@ const getQrKey = async () => {
   }
 };
 
+let qrInterval: any = null;
 const qrImg = ref('');
 const createQrCode = async () => {
-  const res: any = await Api.get('/login/qr/create', { key: uniKey.value, qrimg: true });
+  isQrLoading.value = true;
+  const res: any = await Api.get('/login/qr/create', {
+    key: uniKey.value,
+    qrimg: true,
+  });
   if (res.code == 200) {
     qrImg.value = res.data?.qrimg || '';
     isQrLoading.value = false;
+    checkQrCodeInterval();
   }
 };
 
-onMounted(() => {});
+const checkQrCodeInterval = () => {
+  clearInterval(qrInterval);
+  if (loginDialogVisible.value && curTab.value == 'qrcode') {
+    qrInterval = setInterval(() => {
+      checkQrCode();
+    }, 3000);
+  }
+};
+
+const scanSuccess = ref(false);
+const avatarUrl = ref('');
+const checkQrCode = async () => {
+  const res: any = await Api.get('/login/qr/check', { key: uniKey.value });
+  // 800 为二维码过期,801 为等待扫码,802 为待确认,803 为授权登录成功
+  switch (res.code) {
+    case 800: //二维码过期
+      createQrCode();
+      break;
+    case 801: //等待扫码
+      document.cookie = res.cookie;
+      // Cookies.set('NMTID', res.cookie);
+      break;
+    case 802: //待确认
+      console.log('扫描成功，请在手机上确认登录');
+      document.cookie = res.cookie;
+      avatarUrl.value = res.avatarUrl || '';
+      scanSuccess.value = true;
+      break;
+    case 803: //授权登录成功
+      console.log('登录成功');
+      break;
+  }
+};
 
 const curTab = ref<string>('qrcode');
 const tabs = ref<Array<any>>([
@@ -121,7 +200,7 @@ const loginForm = ref({
 });
 const isGettingCode = ref(false);
 const countdown = ref(60);
-let timer: NodeJS.Timeout | null = null;
+let timer: any = null;
 
 const handleCloseLoginDialog = () => {
   // 触发 update:modelValue 事件更新外部 v-model 值
@@ -138,7 +217,7 @@ const getVerificationCode = () => {
     if (countdown.value > 0) {
       countdown.value--;
     } else {
-      clearInterval(timer as NodeJS.Timeout);
+      clearInterval(timer);
       isGettingCode.value = false;
       countdown.value = 60;
     }
@@ -187,7 +266,7 @@ const handleLogin = () => {
     align-items: center;
     justify-content: center;
     height: 300px;
-    padding: 30px;
+    padding: 30px 50px;
     background: var(--theme-bg-color);
   }
 }
