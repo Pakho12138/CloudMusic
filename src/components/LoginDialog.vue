@@ -5,13 +5,16 @@
       v-if="loginDialogVisible"
       class="dialog-overlay"
       @click.self="handleCloseLoginDialog">
-      <div class="custom-login-dialog">
+      <div class="login-dialog">
         <div class="dialog-body">
           <TabBar v-model="curTab" :tabs="tabs" />
 
           <!-- 二维码登录 -->
           <div v-if="curTab === 'qrcode'" class="dialog-content">
-            二维码登录
+            <div class="w-[180px] h-[180px] bg-white" v-loading="isQrLoading">
+                <img v-if="qrImg" :src="qrImg" alt="二维码" />
+            </div>
+            <div class="text-base mt-4">使用<b class="text-[var(--el-color-primary)]"> 网易云音乐APP </b>扫码登录</div>
           </div>
 
           <!-- 验证码登录 -->
@@ -28,6 +31,8 @@
                   placeholder="请输入验证码"
                   style="width: 60%" />
                 <el-button
+                  type="primary"
+                  size="large"
                   :disabled="isGettingCode"
                   @click="getVerificationCode"
                   style="margin-left: 10px">
@@ -36,7 +41,13 @@
               </el-form-item>
             </el-form>
 
-            <el-button type="primary" @click="handleLogin">登录</el-button>
+            <el-button
+              class="w-3/4 mt-6"
+              type="primary"
+              size="large"
+              @click="handleLogin"
+              >登录</el-button
+            >
           </div>
         </div>
       </div>
@@ -62,12 +73,37 @@ const loginDialogVisible = ref(props.modelValue);
 // 监听 props.modelValue 变化，同步到 loginDialogVisible
 watch(
   () => props.modelValue,
-  newValue => {
+  async newValue => {
     loginDialogVisible.value = newValue;
+    if (newValue) {
+      isQrLoading.value = true;
+      !uniKey.value && await getQrKey();
+      createQrCode();
+    }
   }
 );
 
-const curTab = ref<string>('phone');
+const isQrLoading = ref(true);
+const uniKey = ref('');
+const getQrKey = async () => {
+  const res: any = await Api.get('/login/qr/key');
+  if (res.code == 200) {
+    uniKey.value = res.data?.unikey || '';
+  }
+};
+
+const qrImg = ref('');
+const createQrCode = async () => {
+  const res: any = await Api.get('/login/qr/create', { key: uniKey.value, qrimg: true });
+  if (res.code == 200) {
+    qrImg.value = res.data?.qrimg || '';
+    isQrLoading.value = false;
+  }
+};
+
+onMounted(() => {});
+
+const curTab = ref<string>('qrcode');
 const tabs = ref<Array<any>>([
   {
     label: '二维码登录',
@@ -136,7 +172,7 @@ const handleLogin = () => {
   z-index: 1000;
 }
 
-.custom-login-dialog {
+.login-dialog {
   background-color: var(--theme-bg-color);
   border-radius: 20px; /* 增大圆角 */
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* 增强阴影 */
@@ -146,30 +182,53 @@ const handleLogin = () => {
 
 .dialog-body {
   .dialog-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     height: 300px;
     padding: 30px;
     background: var(--theme-bg-color);
   }
 }
 
+.el-form-item {
+  display: flex;
+  align-items: center;
+  --el-text-color-regular: #fff;
+}
+
+.el-input {
+  flex: 1;
+  overflow: hidden;
+  --el-input-height: 40px;
+  --el-input-border-color: var(--search-bg);
+  --el-input-hover-border-color: var(--border-color);
+  --el-input-focus-border-color: var(--border-color);
+  --el-input-bg-color: var(--search-bg);
+  --el-input-text-color: var(--theme-color);
+}
+
 /* 登录对话框动画 */
 .login-dialog-enter-active,
 .login-dialog-leave-active {
   transition: all 0.3s ease;
+  .login-dialog {
+    transition: all 0.3s ease;
+  }
 }
 
-.login-dialog-enter-from,
+.login-dialog-enter-from {
+  opacity: 0;
+  .login-dialog {
+    transform: scale(0.8);
+  }
+}
+
 .login-dialog-leave-to {
   opacity: 0;
-}
-
-.login-dialog-enter-from .dialog-overlay,
-.login-dialog-leave-to .dialog-overlay {
-  opacity: 0;
-}
-
-.login-dialog-enter-to .dialog-overlay,
-.login-dialog-leave-from .dialog-overlay {
-  opacity: 1;
+  .login-dialog {
+    transform: scale(0.8);
+  }
 }
 </style>

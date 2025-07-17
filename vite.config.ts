@@ -47,6 +47,7 @@ export default defineConfig({
       scss: {
         api: 'modern-compiler', // or 'modern'
         silenceDeprecations: ['legacy-js-api'],
+        additionalData: `@use "@/assets/element.scss" as *;`,
       },
     },
     postcss: {

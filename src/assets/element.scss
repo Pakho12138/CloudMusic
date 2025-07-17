@@ -1,5 +1,13 @@
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  $colors: (
+    'primary': (
+      'base': #c20c0c,
+    ),
+  )
+);
+
 body {
-  --el-color-primary: var(--theme-color);
+  // --el-color-primary: var(--theme-color);
   --el-border-color: var(--border-color);
 }
 
@@ -47,6 +55,7 @@ body {
 }
 
 .el-slider {
+  --el-slider-main-bg-color: var(--theme-color) !important;
   --el-slider-runway-bg-color: var(--inactive-color) !important;
   .el-slider__runway {
     overflow: hidden;
@@ -101,7 +110,7 @@ body {
   --el-skeleton-to-color: var(--inactive-color) !important;
 }
 
-.el-drawer{
+.el-drawer {
   .el-drawer__header {
     color: var(--theme-color);
     .el-drawer__title {
@@ -111,7 +120,8 @@ body {
   }
 }
 
-.el-popper, .el-popover {
+.el-popper,
+.el-popover {
   color: var(--theme-color) !important;
   background: var(--content-bg) !important;
   backdrop-filter: blur(20px);
@@ -135,8 +145,6 @@ body {
     }
   }
 }
-
-
 
 .el-select {
   --el-fill-color-blank: var(--content-bg) !important;

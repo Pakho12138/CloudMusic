@@ -122,6 +122,7 @@ const handleLoginSuccess = (loginInfo: any) => {
     filter: blur(0px);
     transition: all 0.3s;
     &.is-login {
+      transform: scale(0.9);
       opacity: 0.3;
       filter: blur(3px);
     }

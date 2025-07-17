@@ -1,11 +1,13 @@
-import './assets/main.scss'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
-import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
+import './assets/main.scss'
+import ElementPlus from 'element-plus';
+import locale from 'element-plus/es/locale/lang/zh-cn';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
+import "element-plus/theme-chalk/src/index.scss";
 
 import App from './App.vue'
 import router from './router'
@@ -17,7 +19,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 
 app.use(createPinia())
 app.use(router)
-app.use(ElementPlus);
+app.use(ElementPlus, { locale });
 
 router.isReady().then(() => {
     app.mount('#app');

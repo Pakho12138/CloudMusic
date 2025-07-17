@@ -77,12 +77,12 @@ const toSearch = () => {
 };
 
 const login = () => {
-  ElNotification({
-    title: '提示',
-    message: '暂未开放',
-    type: 'warning',
-  });
-  // userStore.openLoginDialog();
+  // ElNotification({
+  //   title: '提示',
+  //   message: '暂未开放',
+  //   type: 'warning',
+  // });
+  userStore.openLoginDialog();
 };
 </script>
 
