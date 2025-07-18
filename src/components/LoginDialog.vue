@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElNotification } from 'element-plus';
 
 // 修改 props 为接收 modelValue
 const props = defineProps<{
@@ -103,7 +103,7 @@ watch(
     if (newValue) {
       scanSuccess.value = false;
       avatarUrl.value = '';
-      curTab.value = 'qrcode';
+      curTab.value = 'phone';
       isQrLoading.value = true;
       !uniKey.value && (await getQrKey());
       createQrCode();
@@ -207,34 +207,43 @@ const handleCloseLoginDialog = () => {
   emit('update:modelValue', false);
 };
 
-const getVerificationCode = () => {
+const getVerificationCode = async () => {
   if (!/^1[3-9]\d{9}$/.test(loginForm.value.phone)) {
-    ElMessage.warning('请输入有效的手机号');
+    ElNotification.warning('请输入有效的手机号');
     return;
   }
-  isGettingCode.value = true;
-  timer = setInterval(() => {
-    if (countdown.value > 0) {
-      countdown.value--;
-    } else {
-      clearInterval(timer);
-      isGettingCode.value = false;
-      countdown.value = 60;
-    }
-  }, 1000);
-  // 这里添加实际获取验证码的 API 调用
-  console.log('发送验证码到', loginForm.value.phone);
+  const res: any = await Api.get('/captcha/sent', {
+    phone: loginForm.value.phone,
+  });
+  if (res.code == 200) {
+    isGettingCode.value = true;
+    timer = setInterval(() => {
+      if (countdown.value > 0) {
+        countdown.value--;
+      } else {
+        clearInterval(timer);
+        isGettingCode.value = false;
+        countdown.value = 60;
+      }
+    }, 1000);
+  }
 };
 
-const handleLogin = () => {
+const handleLogin = async() => {
   if (!loginForm.value.phone || !loginForm.value.code) {
-    ElMessage.warning('请输入手机号和验证码');
+    ElNotification.warning('请输入手机号和验证码');
     return;
   }
-  // 这里添加实际的登录 API 调用
-  console.log('登录信息', loginForm.value);
-  emit('loginSuccess', loginForm.value);
-  handleCloseLoginDialog();
+  const res: any = await Api.get('/login/cellphone', {
+    phone: loginForm.value.phone,
+    captcha: loginForm.value.code,
+  });
+  if (res.code == 200) {
+    console.log(res.data);
+    ElNotification.success('登录成功');
+    emit('loginSuccess', loginForm.value);
+    handleCloseLoginDialog();
+  }
 };
 </script>
 

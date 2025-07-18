@@ -5,7 +5,7 @@ import type {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios';
-import { ElMessage } from 'element-plus';
+import { ElNotification } from 'element-plus';
 // 自定义axios示例
 const instance: AxiosInstance = axios.create({
   // baseURL: 'https://cloud-music-api-nevermore.vercel.app', // 接口前缀地址
@@ -36,7 +36,7 @@ instance.interceptors.response.use(
     if ([200, 800, 801, 802, 803].includes(code)) {
       return response.data;
     }
-    ElMessage.error(message);
+    ElNotification.error(message);
     return Promise.reject(new Error(message));
   },
   (error: AxiosError) => {
@@ -56,7 +56,7 @@ instance.interceptors.response.use(
       default:
         message = '请求失败';
     }
-    ElMessage.error(message);
+    ElNotification.error(message);
     return Promise.reject(error);
   }
 );
