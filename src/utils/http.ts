@@ -9,7 +9,8 @@ import { ElNotification } from 'element-plus';
 // 自定义axios示例
 const instance: AxiosInstance = axios.create({
   // baseURL: 'https://cloud-music-api-nevermore.vercel.app', // 接口前缀地址
-  baseURL: 'https://cloud-music-api.netlify.app', // 接口前缀地址
+  // baseURL: 'https://cloud-music-api.netlify.app', // 接口前缀地址
+  baseURL: 'http://www.codeman.ink/api/', // 接口前缀地址
   timeout: 1000 * 10, // 接口超时时间  10秒
 });
 // 添加请求拦截器
