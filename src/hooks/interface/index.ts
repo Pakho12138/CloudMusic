@@ -10,6 +10,7 @@ export interface themeState {
 
 export interface AudioStore {
   trackList: Track[]; // 歌曲列表
+  likeList: Array<number>; // 歌曲列表
   currentSongIndex: Number; // 当前正在播放的歌曲的索引
 }
 

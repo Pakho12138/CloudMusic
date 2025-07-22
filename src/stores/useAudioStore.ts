@@ -32,6 +32,7 @@ export const useAudioStore = defineStore('audioStore', {
         time: 271226,
       },
     ],
+    likeList: [],
     currentSongIndex: 0,
   }),
   actions: {
