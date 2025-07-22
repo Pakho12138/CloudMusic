@@ -34,9 +34,7 @@
     <DrawerPlayer ref="DrawerPlayerRef" />
   </el-container>
 
-  <LoginDialog
-    v-model="userStore.loginDialogVisible"
-    @loginSuccess="handleLoginSuccess" />
+  <LoginDialog />
 </template>
 
 <script setup lang="ts" name="App">
@@ -72,12 +70,6 @@ provide('MusicPlayer', useMusicPlayer());
 const route = useRoute();
 const showFooter = () => {
   return route?.name != 'video';
-};
-
-// 处理登录成功事件
-const handleLoginSuccess = (loginInfo: any) => {
-  console.log('登录成功', loginInfo);
-  // 这里可以添加登录成功后的逻辑
 };
 </script>
 

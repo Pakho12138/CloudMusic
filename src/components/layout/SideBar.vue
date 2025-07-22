@@ -10,21 +10,25 @@
         <el-icon><Film /></el-icon>
         <template #title>MV</template>
       </el-menu-item>
+      <el-menu-item index="like">
+        <Icon class="menu-icon" icon="solar:heart-bold" />
+        <template #title>我喜欢的音乐</template>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { Icon } from '@iconify/vue';
 
 const defaultActive = ref('');
 const route = useRoute();
-onMounted(() => {
-});
+onMounted(() => {});
 
 const router = useRouter();
 const handleSelect = (idx: string) => {
-  router.replace({name: idx});
+  router.replace({ name: idx });
 };
 
 watch(
@@ -63,6 +67,11 @@ watch(
       }
       & + .el-menu-item {
         margin-top: 4px;
+      }
+      .menu-icon {
+        width: 24px;
+        font-size: 18px;
+        margin-right: 5px;
       }
     }
   }

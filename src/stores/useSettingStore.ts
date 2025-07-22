@@ -5,8 +5,7 @@ import { defineStore } from 'pinia';
 /**
  * 设置
  */
-export const useSettingStore = defineStore({
-  id: 'useSettingStore',
+export const useSettingStore = defineStore('settingStore', {
   state: (): SettingState => ({
     isDrawerCover: true,
     isOriginalParsed: true,
@@ -27,5 +26,4 @@ export const useSettingStore = defineStore({
       this.isDrawerCover = isDrawerCover;
     },
   },
-  // persist: piniaPersistConfig('SettingStore'),
 });

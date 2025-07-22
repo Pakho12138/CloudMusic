@@ -5,8 +5,7 @@ import { defineStore } from 'pinia';
 /**
  * 主题设置s
  */
-export const useThemeStore = defineStore({
-  id: 'useThemeStore',
+export const useThemeStore = defineStore('themeStore', {
   state: (): themeState => ({
     isDark: true,
     primary: '#000000',
@@ -23,5 +22,4 @@ export const useThemeStore = defineStore({
       this.language = language;
     },
   },
-  // persist: piniaPersistConfig('ThemeStore'),
 });

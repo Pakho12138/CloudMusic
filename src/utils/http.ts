@@ -10,7 +10,7 @@ import { ElNotification } from 'element-plus';
 const instance: AxiosInstance = axios.create({
   // baseURL: 'https://cloud-music-api-nevermore.vercel.app', // 接口前缀地址
   // baseURL: 'https://cloud-music-api.netlify.app', // 接口前缀地址
-  baseURL: 'http://www.codeman.ink/api/', // 接口前缀地址
+  baseURL: 'https://163api.qijieya.cn/', // 接口前缀地址
   timeout: 1000 * 10, // 接口超时时间  10秒
 });
 // 添加请求拦截器
@@ -37,8 +37,8 @@ instance.interceptors.response.use(
     if ([200, 800, 801, 802, 803].includes(code)) {
       return response.data;
     }
-    ElNotification.error(message);
-    return Promise.reject(new Error(message));
+    message && ElNotification.error(message);
+    return message ? Promise.reject(new Error(message)) : response.data;
   },
   (error: AxiosError) => {
     let message = '';
@@ -57,7 +57,7 @@ instance.interceptors.response.use(
       default:
         message = '请求失败';
     }
-    ElNotification.error(message);
+    message && ElNotification.error(message);
     return Promise.reject(error);
   }
 );

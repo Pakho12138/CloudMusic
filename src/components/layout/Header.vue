@@ -30,7 +30,7 @@
         <el-avatar
           v-if="userStore.userInfo?.avatarUrl"
           :src="userStore.userInfo.avatarUrl"
-          class="can-click mr-2"
+          class="can-click"
           shape="circle"
           :size="40" />
         <div
@@ -40,7 +40,11 @@
             ><UserFilled
           /></el-icon>
         </div>
-        <div class="can-click text-[--button-inactive] text-sm">登录</div>
+        <div
+          v-if="!userStore.userInfo?.userId"
+          class="can-click text-[--button-inactive] text-sm mr-2">
+          登录
+        </div>
       </div>
     </div>
   </div>
@@ -82,7 +86,8 @@ const login = () => {
   //   message: '暂未开放',
   //   type: 'warning',
   // });
-  userStore.openLoginDialog();
+  // !userStore.isLogin && userStore.openLoginDialog();
+  !userStore.isLogin && userStore.openLoginDialog();
 };
 </script>
 

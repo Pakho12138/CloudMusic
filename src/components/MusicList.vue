@@ -100,6 +100,7 @@
 <script setup lang="ts">
 import type { MusicPlayer, Song, Track } from '@/hooks/interface';
 import { useAudioStore } from '@/stores/useAudioStore';
+import { useUserStore } from '@/stores/useUserStore';
 import { Api } from '@/utils/request';
 import { calculatePagination, formatMillisecondsToTime } from '@/utils/util';
 import { Icon } from '@iconify/vue';
@@ -107,12 +108,18 @@ import { ElNotification } from 'element-plus';
 import { inject, onMounted, reactive, ref, toRefs, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const { playSong, resetAudio, downLoadMusic } = inject('MusicPlayer') as MusicPlayer;
+const { playSong, resetAudio, downLoadMusic } = inject(
+  'MusicPlayer'
+) as MusicPlayer;
 
 const props = defineProps({
   keywords: {
     type: String,
     default: '',
+  },
+  type: {
+    type: String,
+    default: 'search',
   },
 });
 
@@ -129,6 +136,7 @@ const { currentPage, pageSize, size, total } = toRefs(state);
 const route = useRoute();
 const router = useRouter();
 const AudioStore = useAudioStore();
+const userStore = useUserStore();
 const tableData = ref<Song[]>();
 const isLoading = ref<boolean>(true);
 const getData = async (isRefresh: boolean = false) => {
@@ -141,9 +149,27 @@ const getData = async (isRefresh: boolean = false) => {
 
     isLoading.value = true;
 
-    const res: any = await Api.get('cloudsearch', {
-      keywords: props.keywords,
-      type: 1,
+    let api = '';
+    let params = {};
+    switch (props.type) {
+      case 'like':
+        api = 'likelist';
+        params = {
+          uid: userStore.userInfo.userId,
+          cookie: localStorage.getItem('cookie'),
+        };
+        break;
+      case 'search':
+        api = 'cloudsearch';
+        params = {
+          keywords: props.keywords,
+          type: 1,
+        };
+        break;
+    }
+
+    const res: any = await Api.get(api, {
+      ...params,
       ...calculatePagination({
         limit: state.pageSize,
         offset: state.currentPage,

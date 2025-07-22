@@ -2,9 +2,9 @@
   <!-- 使用 transition 组件添加动画 -->
   <transition name="login-dialog">
     <div
-      v-if="loginDialogVisible"
+      v-if="showDialog"
       class="dialog-overlay"
-      @click.self="handleCloseLoginDialog">
+      @click.self="closeLoginDialog">
       <div class="login-dialog">
         <div class="dialog-body">
           <TabBar v-model="curTab" :tabs="tabs" @change="changeTab" />
@@ -83,23 +83,23 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { ElNotification } from 'element-plus';
+import { useUserStore } from '@/stores/useUserStore';
 
 // 修改 props 为接收 modelValue
-const props = defineProps<{
-  modelValue: boolean;
-}>();
+// const props = defineProps<{
+//   modelValue: boolean;
+// }>();
 
+const userStore = useUserStore();
+const showDialog = ref(userStore.loginDialogVisible);
 // 修改 emit 为 update:modelValue
-const emit = defineEmits(['update:modelValue', 'loginSuccess']);
-
-// 使用 modelValue 初始化登录对话框可见状态
-const loginDialogVisible = ref(props.modelValue);
+const emit = defineEmits(['loginSuccess']);
 
 // 监听 props.modelValue 变化，同步到 loginDialogVisible
 watch(
-  () => props.modelValue,
+  () => userStore.loginDialogVisible,
   async newValue => {
-    loginDialogVisible.value = newValue;
+    showDialog.value = newValue;
     if (newValue) {
       scanSuccess.value = false;
       avatarUrl.value = '';
@@ -150,7 +150,7 @@ const createQrCode = async () => {
 
 const checkQrCodeInterval = () => {
   clearInterval(qrInterval);
-  if (loginDialogVisible.value && curTab.value == 'qrcode') {
+  if (userStore.loginDialogVisible && curTab.value == 'qrcode') {
     qrInterval = setInterval(() => {
       checkQrCode();
     }, 3000);
@@ -166,19 +166,34 @@ const checkQrCode = async () => {
     case 800: //二维码过期
       createQrCode();
       break;
-    case 801: //等待扫码
-      document.cookie = res.cookie;
-      // Cookies.set('NMTID', res.cookie);
-      break;
+    // case 801: //等待扫码
+    //   document.cookie = res.cookie;
+    //   // Cookies.set('NMTID', res.cookie);
+    //   break;
     case 802: //待确认
       console.log('扫描成功，请在手机上确认登录');
-      document.cookie = res.cookie;
       avatarUrl.value = res.avatarUrl || '';
       scanSuccess.value = true;
       break;
     case 803: //授权登录成功
       console.log('登录成功');
+      clearInterval(qrInterval);
+      await getLoginStatus(res.cookie);
+      localStorage.setItem('cookie', res.cookie)
       break;
+  }
+};
+
+const getLoginStatus = async (cookie: string = '') => {
+  const res: any = await Api.post('/login/status', {
+    cookie,
+  });
+  if (res.data.code == 200) {
+    res.data?.profile && userStore.setUserInfo(res.data.profile);
+    userStore.closeLoginDialog();
+    ElNotification.success('登录成功');
+  } else {
+    ElNotification.error(res.data?.message || '登录失败');
   }
 };
 
@@ -202,11 +217,6 @@ const isGettingCode = ref(false);
 const countdown = ref(60);
 let timer: any = null;
 
-const handleCloseLoginDialog = () => {
-  // 触发 update:modelValue 事件更新外部 v-model 值
-  emit('update:modelValue', false);
-};
-
 const getVerificationCode = async () => {
   if (!/^1[3-9]\d{9}$/.test(loginForm.value.phone)) {
     ElNotification.warning('请输入有效的手机号');
@@ -229,7 +239,7 @@ const getVerificationCode = async () => {
   }
 };
 
-const handleLogin = async() => {
+const handleLogin = async () => {
   if (!loginForm.value.phone || !loginForm.value.code) {
     ElNotification.warning('请输入手机号和验证码');
     return;
@@ -242,8 +252,12 @@ const handleLogin = async() => {
     console.log(res.data);
     ElNotification.success('登录成功');
     emit('loginSuccess', loginForm.value);
-    handleCloseLoginDialog();
+    closeLoginDialog();
   }
+};
+
+const closeLoginDialog = () => {
+  userStore.closeLoginDialog();
 };
 </script>
 

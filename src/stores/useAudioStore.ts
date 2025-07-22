@@ -5,8 +5,7 @@ import { defineStore } from 'pinia';
 /**
  * 音频
  */
-export const useAudioStore = defineStore({
-  id: 'useAudioStore',
+export const useAudioStore = defineStore('audioStore', {
   state: (): AudioStore => ({
     // 歌曲缓存
     trackList: [
@@ -15,8 +14,10 @@ export const useAudioStore = defineStore({
         title: '浮光',
         singer: '周深',
         album: '浮光',
-        cover: 'http://p1.music.126.net/zfdCU3cL-dsTqVvjmKPrjg==/109951169222823883.jpg',
-        source: 'http://m801.music.126.net/20241123231312/122400e3b66d3f81814a9cc7f344906a/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/32407773353/f8a6/1163/aa19/7065abd5982bf7c5d91717d17036e05a.mp3',
+        cover:
+          'http://p1.music.126.net/zfdCU3cL-dsTqVvjmKPrjg==/109951169222823883.jpg',
+        source:
+          'http://m801.music.126.net/20241123231312/122400e3b66d3f81814a9cc7f344906a/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/32407773353/f8a6/1163/aa19/7065abd5982bf7c5d91717d17036e05a.mp3',
         time: 274544,
       },
       {
@@ -24,8 +25,10 @@ export const useAudioStore = defineStore({
         title: '孤独患者',
         singer: '陈奕迅',
         album: '？',
-        cover: 'http://p1.music.126.net/Po0tJTtv4aBaYozWlnojHg==/18546562139313276.jpg',
-        source: 'http://m801.music.126.net/20241123231807/321ce169ef3e791010caf7fa4f4750da/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/28481799312/75d8/23c2/0cf6/5e60f4b106410e8bc3112e29f71e7c6b.mp3',
+        cover:
+          'http://p1.music.126.net/Po0tJTtv4aBaYozWlnojHg==/18546562139313276.jpg',
+        source:
+          'http://m801.music.126.net/20241123231807/321ce169ef3e791010caf7fa4f4750da/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/28481799312/75d8/23c2/0cf6/5e60f4b106410e8bc3112e29f71e7c6b.mp3',
         time: 271226,
       },
     ],
@@ -58,7 +61,9 @@ export const useAudioStore = defineStore({
       let existingIndex = -1; // 用于记录已存在歌曲的索引
 
       const addTrack = (track: Track) => {
-        existingIndex = this.trackList.findIndex(existingTrack => existingTrack.id === track.id);
+        existingIndex = this.trackList.findIndex(
+          existingTrack => existingTrack.id === track.id
+        );
 
         if (existingIndex === -1) {
           this.trackList.push(track);

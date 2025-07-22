@@ -4,13 +4,13 @@
   <MusicList v-if="curTab == 'songs'" ref="musicListRef" :keywords="keywords" />
   <MVList v-else-if="curTab == 'mv'" ref="mvListRef" :keywords="keywords" />
 
-  <view v-else class="container-wrapper flex-center"> 暂未开放 </view>
+  <div v-else class="container-wrapper flex-center"> 暂未开放 </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import TabBar from '@/components/TabBar.vue';
-import MusicList from './components/MusicList.vue';
+import MusicList from '../../components/MusicList.vue';
 import MVList from '../mv/components/MVList.vue';
 
 onMounted(() => {

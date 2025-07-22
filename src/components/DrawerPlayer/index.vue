@@ -17,7 +17,7 @@
     :showClose="false"
     class="drawer-bg">
     <template #header>
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between z-10">
         <div class="flex items-center gap-2 w-40">
           <Icon
             class="btn-close can-click size-[40px] text-[--button-inactive]"
@@ -26,8 +26,8 @@
         </div>
 
         <div class="flex items-center text-sm text-[--button-inactive]">
-          <Icon class="size-4 mr-0.5" icon="mingcute:time-fill" />
-          <span class="font-semibold">{{ localeCurrentTime }}</span>
+          <Icon class="size-5 mr-1" icon="mingcute:time-fill" />
+          <span class="text-base font-semibold mt-[-2px]">{{ localeCurrentTime }}</span>
         </div>
 
         <div class="flex items-center gap-4 w-40 justify-end">
@@ -42,7 +42,7 @@
             :src="userStore.userInfo.avatarUrl"
             class="mr-2"
             shape="circle"
-            :size="32" />
+            :size="40" />
           <div
             v-else
             class="w-10 h-10 flex items-center justify-center rounded-[50%] bg-[--search-bg]">

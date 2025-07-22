@@ -21,6 +21,11 @@ const router = createRouter({
       component: () => import('../views/mv/index.vue'),
     },
     {
+      path: '/like',
+      name: 'like',
+      component: () => import('../views/like/index.vue'),
+    },
+    {
       path: '/video',
       name: 'video',
       component: () => import('../views/video/index.vue'),
