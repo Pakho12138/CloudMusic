@@ -26,6 +26,26 @@ export function formatNumber(num: number): string {
   }
 }
 
+/**
+ * 将毫秒时间戳转换为指定格式的日期字符串
+ * @param timestamp - 毫秒级时间戳
+ * @param format - 日期格式模板，默认值为 'YYYY-MM-DD HH:mm:ss'
+ * @returns 格式化后的日期字符串
+ */
+export function formatTimestampToDate(timestamp: number, format = 'YYYY-MM-DD HH:mm:ss'): string {
+  const date = new Date(timestamp);
+  const dateParts: Record<string, string> = {
+    YYYY: date.getFullYear().toString(),
+    MM: String(date.getMonth() + 1).padStart(2, '0'),
+    DD: String(date.getDate()).padStart(2, '0'),
+    HH: String(date.getHours()).padStart(2, '0'),
+    mm: String(date.getMinutes()).padStart(2, '0'),
+    ss: String(date.getSeconds()).padStart(2, '0')
+  };
+
+  return format.replace(/YYYY|MM|DD|HH|mm|ss/g, (match) => dateParts[match] || match);
+}
+
 export function formatMillisecondsToTime(totalMilliseconds: number) {
   const totalSeconds = Math.floor(totalMilliseconds / 1000);
   const hours = Math.floor(totalSeconds / 3600);

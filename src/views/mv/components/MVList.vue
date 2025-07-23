@@ -1,9 +1,6 @@
 <template>
   <!-- MV列表 -->
-  <div
-    v-infinite-scroll="loadMore"
-    :infinite-scroll-distance="100"
-    class="container-wrapper">
+  <div v-infinite-scroll="loadMore" :infinite-scroll-distance="100">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-4">
       <div
         class="item-card rounded-lg bg-[var(--content-bg)] bg-card text-card-foreground shadow-sm overflow-hidden cursor-pointer hover:bg-[var(--theme-bg-color)] transition-all duration-300"
@@ -144,7 +141,7 @@ const loadMore = async () => {
 
 defineExpose({
   getData,
-  mvList
+  mvList,
 });
 </script>
 

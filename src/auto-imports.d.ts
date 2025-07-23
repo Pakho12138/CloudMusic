@@ -20,6 +20,7 @@ declare global {
   const effectScope: typeof import('vue')['effectScope']
   const formatMillisecondsToTime: typeof import('./utils/util')['formatMillisecondsToTime']
   const formatNumber: typeof import('./utils/util')['formatNumber']
+  const formatTimestampToDate: typeof import('./utils/util')['formatTimestampToDate']
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']

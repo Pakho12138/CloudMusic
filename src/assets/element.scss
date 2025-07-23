@@ -153,3 +153,7 @@ body {
   --el-color-primary: var(--theme-bg-color) !important;
   --el-input-text-color: var(--button-inactive) !important;
 }
+
+.el-loading-spinner .path {
+  stroke: var(--theme-color) !important;
+}

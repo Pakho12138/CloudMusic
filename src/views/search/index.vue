@@ -1,10 +1,15 @@
 <template>
   <TabBar v-model="curTab" :tabs="tabs" @change="getData()" />
 
-  <MusicList v-if="curTab == 'songs'" ref="musicListRef" :keywords="keywords" />
-  <MVList v-else-if="curTab == 'mv'" ref="mvListRef" :keywords="keywords" />
+  <div class="container-wrapper">
+    <MusicList
+      v-if="curTab == 'songs'"
+      ref="musicListRef"
+      :keywords="keywords" />
+    <MVList v-else-if="curTab == 'mv'" ref="mvListRef" :keywords="keywords" />
 
-  <div v-else class="container-wrapper flex-center"> 暂未开放 </div>
+    <div v-else class="h-full flex-center">暂未开放</div>
+  </div>
 </template>
 
 <script setup lang="ts">

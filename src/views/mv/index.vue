@@ -28,7 +28,9 @@
     </div>
 
     <!-- MV列表 -->
-    <MVList ref="mvListRef" :filter="filter" />
+    <div class="container-wrapper">
+      <MVList ref="mvListRef" :filter="filter" />
+    </div>
   </div>
 </template>
 

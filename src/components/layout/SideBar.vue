@@ -10,57 +10,24 @@
         <el-icon><Film /></el-icon>
         <template #title>MV</template>
       </el-menu-item>
-      <!-- <el-menu-item index="like">
-        <Icon class="menu-icon" icon="solar:heart-bold" />
-        <template #title>我喜欢的音乐</template>
-      </el-menu-item> -->
-      <el-sub-menu index="1">
-        <template #title>
-          <el-icon><Menu /></el-icon>
-          <span>歌单</span>
-        </template>
-        <el-menu-item v-for="item in playlist" :key="item.id" :index="item.id">
-          <div class="flex items-center gap-2">
-            <img
-              class="w-8 h-8 rounded-md"
-              :src="item.coverImgUrl"
-              alt="封面" />
-            <div class="text-[var(--button-inactive)] text-sm line-clamp-1">
-              {{ item.name }}
-            </div>
-          </div></el-menu-item
-        >
-      </el-sub-menu>
+      <el-menu-item index="playlist">
+        <Icon
+          icon="icon-park-solid:music-list"
+          class="menu-icon" />
+        <template #title>我的歌单</template>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
 import { Icon } from '@iconify/vue';
-import { useUserStore } from '@/stores/useUserStore';
+import { onMounted, ref } from 'vue';
+
+onMounted(() => {});
 
 const defaultActive = ref('');
 const route = useRoute();
-onMounted(() => {
-  getPlaylist();
-});
-
-const userStore = useUserStore();
-const playlist: any = ref([]);
-const hasMore = ref(true);
-const getPlaylist = async () => {
-  const res: any = await Api.get('user/playlist', {
-    uid: userStore.userInfo.userId,
-  });
-  if (res.code == 200) {
-    const list = res.playlist || [];
-    list[0].name = '我喜欢的音乐';
-    playlist.value = list;
-    hasMore.value = res.more || false;
-  }
-};
-
 const router = useRouter();
 const handleSelect = (idx: string) => {
   router.replace({ name: idx });

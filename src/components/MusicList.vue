@@ -1,99 +1,98 @@
 <template>
-  <div class="container-wrapper">
-    <div class="h-full w-full flex flex-col">
-      <el-table
-        v-loading="isLoading"
-        element-loading-background="transparent"
-        :data="tableData"
-        @row-dblclick="playMusic"
-        class="w-full !text-xs !flex-1">
-        <template #empty>
-          <span v-show="!isLoading">暂无数据</span>
+  <div class="h-full w-full flex flex-col">
+    <el-table
+      v-loading="isLoading"
+      element-loading-background="transparent"
+      :data="tableData"
+      @row-dblclick="playMusic"
+      class="w-full !text-xs !flex-1">
+      <template #empty>
+        <span v-show="!isLoading">暂无数据</span>
+      </template>
+      <!--歌名-->
+      <el-table-column prop="name" label="歌名" minWidth="160">
+        <template #default="{ row }">
+          <div class="flex items-center gap-1">
+            <div class="min-w-10 h-10">
+              <el-image
+                class="w-full h-full rounded-lg"
+                lazy
+                :src="row.al.picUrl + '?param=90y90'"
+                :alt="row.al.name" />
+            </div>
+            <span
+              class="line-clamp-1 cursor-pointer"
+              @click="router.push(`/search?kw=${row.name}`)"
+              :title="row.name"
+              >{{ row.name }}</span
+            >
+          </div>
         </template>
-        <!--歌名-->
-        <el-table-column prop="name" label="歌名" minWidth="160">
-          <template #default="{ row }">
-            <div class="flex items-center gap-1">
-              <div class="min-w-10 h-10">
-                <el-image
-                  class="w-full h-full rounded-lg"
-                  lazy
-                  :src="row.al.picUrl + '?param=90y90'"
-                  :alt="row.al.name" />
-              </div>
-              <span
-                class="line-clamp-1 cursor-pointer"
-                @click="router.push(`/search?kw=${row.name}`)"
-                :title="row.name"
-                >{{ row.name }}</span
-              >
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="歌手">
-          <template #default="{ row }">
-            <div class="line-clamp-1">
-              <template v-if="row.ar && row.ar.length">
-                <router-link
-                  v-for="(item, index) in row.ar"
-                  :key="item.id"
-                  class="cursor-pointer"
-                  :to="`/search?kw=${item.name}`">
-                  {{ item.name }}
-                  <!-- 在这里添加分隔符 -->
-                  <span v-if="index < row.ar.length - 1"> \ </span>
-                </router-link>
-              </template>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="al.name" label="专辑" minWidth="120">
-          <template #default="{ row }">
-            <span class="line-clamp-1" :title="row.al.name">
-              {{ row.al.name }}
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column label="时间">
-          <template #default="{ row }">
-            <span>
-              {{ formatMillisecondsToTime(row.dt) }}
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column label="" width="140">
-          <template #default="{ row }">
-            <div class="flex items-center gap-4">
-              <Icon
-                icon="material-symbols:play-circle-rounded"
-                class="can-click text-2xl text-[--button-inactive]"
-                @click="playMusic(row)" />
-              <Icon
-                icon="solar:video-frame-linear"
-                class="can-click text-xl text-[--button-inactive]"
-                @click="router.push(`/video?id=${row.mv}`)"
-                v-if="row.mv && row.mv !== 0" />
-              <Icon
-                icon="material-symbols:download"
-                class="can-click text-2xl text-[--button-inactive]"
-                @click="downLoadMusic(row)" />
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+      </el-table-column>
+      <el-table-column label="歌手" minWidth="120">
+        <template #default="{ row }">
+          <div class="line-clamp-1">
+            <template v-if="row.ar && row.ar.length">
+              <router-link
+                v-for="(item, index) in row.ar"
+                :key="item.id"
+                class="cursor-pointer"
+                :to="`/search?kw=${item.name}`">
+                {{ item.name }}
+                <!-- 在这里添加分隔符 -->
+                <span v-if="index < row.ar.length - 1"> \ </span>
+              </router-link>
+            </template>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="al.name" label="专辑" minWidth="120">
+        <template #default="{ row }">
+          <span class="line-clamp-1" :title="row.al.name">
+            {{ row.al.name }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="时间">
+        <template #default="{ row }">
+          <span>
+            {{ formatMillisecondsToTime(row.dt) }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="" width="140">
+        <template #default="{ row }">
+          <div class="flex items-center gap-4">
+            <Icon
+              icon="material-symbols:play-circle-rounded"
+              class="can-click text-2xl text-[--button-inactive]"
+              @click="playMusic(row)" />
+            <Icon
+              icon="solar:video-frame-linear"
+              class="can-click text-xl text-[--button-inactive]"
+              @click="router.push(`/video?id=${row.mv}`)"
+              v-if="row.mv && row.mv !== 0" />
+            <Icon
+              icon="material-symbols:download"
+              class="can-click text-2xl text-[--button-inactive]"
+              @click="downLoadMusic(row)" />
+          </div>
+        </template>
+      </el-table-column>
+    </el-table>
 
-      <el-pagination
-        class="flex items-center justify-end mt-5"
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 30, 40]"
-        :size="size"
-        :total="total"
-        :background="true"
-        layout="total, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange" />
-    </div>
+    <el-pagination
+      v-if="type !== 'playlist'"
+      class="flex items-center justify-end mt-5"
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      :page-sizes="[10, 20, 30, 40]"
+      :size="size"
+      :total="total"
+      :background="true"
+      layout="total, prev, pager, next, jumper"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange" />
   </div>
 </template>
 
@@ -121,6 +120,10 @@ const props = defineProps({
     type: String,
     default: 'search',
   },
+  playCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 onMounted(() => {});
@@ -136,8 +139,9 @@ const { currentPage, pageSize, size, total } = toRefs(state);
 const route = useRoute();
 const router = useRouter();
 const AudioStore = useAudioStore();
-const userStore = useUserStore();
+const UserStore = useUserStore();
 const tableData = ref<Song[]>();
+const allTableData = ref<Song[]>();
 const isLoading = ref<boolean>(true);
 const getData = async (isRefresh: boolean = false) => {
   try {
@@ -149,46 +153,59 @@ const getData = async (isRefresh: boolean = false) => {
 
     isLoading.value = true;
 
-    let api = '';
-    let params = {};
     switch (props.type) {
-      case 'like':
-        api = 'likelist';
-        params = {
-          uid: userStore.userInfo.userId,
-          cookie: localStorage.getItem('cookie'),
-        };
+      case 'playlist':
+        await getPlaylist();
         break;
       case 'search':
-        api = 'cloudsearch';
-        params = {
-          keywords: props.keywords,
-          type: 1,
-        };
+        await getSearchlist();
         break;
-    }
-
-    const res: any = await Api.get(api, {
-      ...params,
-      ...calculatePagination({
-        limit: state.pageSize,
-        offset: state.currentPage,
-      }),
-    });
-
-    if (res.code == 200) {
-      state.total = res.result.songCount || 0;
-      tableData.value = res.result.songs || [];
-    } else {
-      ElNotification({
-        title: '错误',
-        message: '加载失败',
-        type: 'error',
-      });
     }
   } catch (error) {
   } finally {
     isLoading.value = false;
+  }
+};
+
+const getSearchlist = async () => {
+  const res: any = await Api.get('cloudsearch', {
+    type: 1,
+    keywords: props.keywords,
+    ...calculatePagination({
+      limit: state.pageSize,
+      offset: state.currentPage,
+    }),
+  });
+
+  if (res.code == 200) {
+    state.total = res.result.songCount || 0;
+    tableData.value = res.result.songs || [];
+  } else {
+    ElNotification({
+      title: '错误',
+      message: '加载失败',
+      type: 'error',
+    });
+  }
+};
+
+const getPlaylist = async () => {
+  const res: any = await Api.get('playlist/track/all', {
+    id: route.query.id,
+    // ...calculatePagination({
+    //   limit: state.pageSize,
+    //   offset: state.currentPage,
+    // }),
+  });
+
+  if (res.code == 200) {
+    tableData.value = res.songs || [];
+  } else {
+    ElNotification({
+      title: '错误',
+      message: '加载失败',
+      type: 'error',
+    });
   }
 };
 
