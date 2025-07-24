@@ -150,18 +150,21 @@ const getData = async (isRefresh: boolean = false) => {
       state.currentPage = 1;
       state.total = 0;
     }
-
+    
     isLoading.value = true;
-
+    
+    let res;
     switch (props.type) {
       case 'playlist':
-        await getPlaylist();
+        res = await getPlaylist();
         break;
       case 'search':
-        await getSearchlist();
+        res = await getSearchlist();
         break;
     }
+    return res;
   } catch (error) {
+    return Promise.reject(error);
   } finally {
     isLoading.value = false;
   }
@@ -207,6 +210,7 @@ const getPlaylist = async () => {
       type: 'error',
     });
   }
+  return res;
 };
 
 const playMusic = async (row: Song) => {
