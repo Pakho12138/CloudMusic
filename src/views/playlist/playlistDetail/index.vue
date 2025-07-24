@@ -48,7 +48,8 @@
         <el-image
           class="w-[200px] h-[200px] rounded-lg"
           :src="detail.coverImgUrl"
-          fit="cover" />
+          fit="cover"
+          lazy />
         <div class="flex-1">
           <div class="flex items-center gap-2">
             <span
@@ -65,7 +66,8 @@
               <el-image
                 class="w-[30px] h-[30px] rounded-full"
                 :src="detail.creator?.avatarUrl"
-                fit="cover" />
+                fit="cover"
+                lazy />
               <div>
                 <span class="can-click text-base text-[var(--theme-color)]">{{
                   detail.creator?.nickname || '未知用户'
@@ -83,11 +85,21 @@
               <span>播放全部</span>
             </el-button>
             <div>
-              标签：<span class="text-[var(--theme-color)]">{{ detail.tags?.length ? detail.tags?.join('、') : '暂无' }}</span>
+              标签：<span class="text-[var(--theme-color)]">{{
+                detail.tags?.length ? detail.tags?.join('、') : '暂无'
+              }}</span>
             </div>
             <div class="flex gap-4">
-              <div>歌曲：<span class="text-[var(--theme-color)]">{{ detail.trackCount || 0 }}首</span></div>
-              <div>播放：<span class="text-[var(--theme-color)]">{{ detail.playCount || 0 }}次</span></div>
+              <div>
+                歌曲：<span class="text-[var(--theme-color)]"
+                  >{{ detail.trackCount || 0 }}首</span
+                >
+              </div>
+              <div>
+                播放：<span class="text-[var(--theme-color)]"
+                  >{{ detail.playCount || 0 }}次</span
+                >
+              </div>
             </div>
             <div>
               <div class="leading-5" :class="{ 'line-clamp-1': !isExpanded }">

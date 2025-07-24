@@ -95,10 +95,11 @@
           <a class="absolute inset-0 z-10" href="#">
             <span class="sr-only">View</span>
           </a>
-          <img
-            alt="Thumbnail"
+          <el-image
             class="aspect-video rounded-lg object-cover w-28 h-16"
-            :src="item.cover" />
+            :src="item.cover"
+            alt="Thumbnail"
+            lazy />
           <div class="text-sm">
             <div class="font-medium line-clamp-2">
               {{ item.name }}
@@ -144,8 +145,7 @@ const state = reactive({
   mvs: [] as SimilarPlaylistsPlaylist[],
 });
 
-const { mvDetails, mvCommentsList, mvCommentsCount, mvs } =
-  toRefs(state);
+const { mvDetails, mvCommentsList, mvCommentsCount, mvs } = toRefs(state);
 
 let player: any;
 const videoMainRef = ref();
@@ -170,7 +170,7 @@ onMounted(() => {
           // pipInstance.isPIPAvailable() && pipInstance.requestPIP();
         }
       }
-    }, 300),
+    }, 300)
     // {
     //   root: videoMainRef.value,
     //   threshold: 0,

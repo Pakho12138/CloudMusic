@@ -9,12 +9,11 @@
         @click="router.push(`/video?id=${item.id}`)">
         <div class="p-0">
           <div class="relative">
-            <img
+            <el-image
               alt="MV Thumbnail"
-              width="320"
-              height="180"
               class="w-full object-cover transition-all duration-300"
               :src="item.cover"
+              lazy
               style="aspect-ratio: 320 / 180; object-fit: cover" />
           </div>
           <div class="p-4">
