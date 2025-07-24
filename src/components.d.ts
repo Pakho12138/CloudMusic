@@ -8,7 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     CommentPopup: typeof import('./components/CommentPopup/index.vue')['default']
-    DateFormatter: typeof import('./components/DateFormatter.vue')['default']
     DrawerPlayer: typeof import('./components/DrawerPlayer/index.vue')['default']
     Footer: typeof import('./components/layout/Footer/Footer.vue')['default']
     Header: typeof import('./components/layout/Header.vue')['default']
