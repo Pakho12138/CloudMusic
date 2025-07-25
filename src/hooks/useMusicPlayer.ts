@@ -417,7 +417,7 @@ export function useMusicPlayer() {
       //     console.error('Download failed:', error);
       //   });
 
-      const proxyUrl = fetch(`https://cloudmusic.pages.dev/proxy?url=${encodeURIComponent(musicUrl)}`)
+      fetch(`https://cloudmusic.pages.dev/proxy?url=${encodeURIComponent(musicUrl)}`)
         .then(response => response.blob()) // 将响应转换为 blob
         .then(blob => {
           const link = document.createElement('a');

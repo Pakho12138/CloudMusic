@@ -30,9 +30,9 @@ export async function onRequest(context) {
     // 确保内容类型
     ensureContentType(proxyResponse.headers);
     
-    // 为可下载文件添加头 - 修复后缀名问题
+    // 为可下载文件添加头
     if (isDownloadable(proxyResponse.headers)) {
-      addDownloadHeaders(proxyResponse.headers, targetUrl, response.headers);
+      addDownloadHeaders(proxyResponse.headers, targetUrl);
     }
     
     return proxyResponse;
@@ -42,79 +42,78 @@ export async function onRequest(context) {
   }
 }
 
-// 辅助函数保持不变
-function badRequest(message) { /* ... */ }
-function handleOptions(request) { /* ... */ }
-async function fetchTarget(targetUrl, originalRequest) { /* ... */ }
-function ensureContentType(headers) { /* ... */ }
-function isDownloadable(headers) { /* ... */ }
-function handleError(error) { /* ... */ }
-
-// 完全重写的文件名处理函数 - 确保保留原始后缀名
-function addDownloadHeaders(proxyHeaders, targetUrl, originalHeaders) {
-  // 1. 优先使用原始 Content-Disposition 中的文件名
-  const originalCd = originalHeaders.get("Content-Disposition");
-  if (originalCd && originalCd.includes("filename=")) {
-    const match = originalCd.match(/filename\s*=\s*"([^"]+)"|filename\s*=\s*([^;]+)/i);
-    if (match && (match[1] || match[2])) {
-      const filename = match[1] || match[2];
-      proxyHeaders.set("Content-Disposition", `attachment; filename="${filename}"`);
-      return;
-    }
-  }
-
-  // 2. 从 URL 路径中提取文件名（保留查询参数）
-  const urlObj = new URL(targetUrl);
-  const pathParts = urlObj.pathname.split('/');
-  let filename = pathParts.pop() || "download";
-  
-  // 3. 确保文件名包含扩展名
-  const extension = getFileExtension(proxyHeaders, originalHeaders);
-  if (extension && !filename.includes('.')) {
-    filename += `.${extension}`;
-  }
-  
-  // 4. 保留 URL 的查询参数（如果对文件名重要）
-  if (urlObj.search) {
-    filename += urlObj.search.replace(/[?&]/g, '-');
-  }
-  
-  // 5. 清理文件名中的非法字符
-  filename = filename.replace(/[^a-zA-Z0-9\-_.]/g, '_');
-  
-  proxyHeaders.set("Content-Disposition", `attachment; filename="${filename}"`);
+// 辅助函数
+function badRequest(message) {
+  return new Response(message, { status: 400, headers: { "Content-Type": "text/plain" } });
 }
 
-// 从 Content-Type 或 URL 获取文件扩展名
-function getFileExtension(proxyHeaders, originalHeaders) {
-  // 1. 从 Content-Type 获取扩展名
-  const contentType = proxyHeaders.get("Content-Type") || 
-                     originalHeaders.get("Content-Type") || "";
+function handleOptions(request) {
+  return new Response(null, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": request.headers.get("Access-Control-Request-Headers") || "*",
+      "Access-Control-Max-Age": "86400",
+      "Vary": "Origin"
+    },
+    status: 204
+  });
+}
+
+async function fetchTarget(targetUrl, originalRequest) {
+  const proxyHeaders = new Headers();
+  ["content-type", "accept", "range"].forEach(header => {
+    if (originalRequest.headers.has(header)) {
+      proxyHeaders.set(header, originalRequest.headers.get(header));
+    }
+  });
   
-  const mimeToExt = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'application/pdf': 'pdf',
-    'application/zip': 'zip',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
-    'application/vnd.ms-excel': 'xls',
-    'application/msword': 'doc',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
-    'text/csv': 'csv',
-    'application/json': 'json'
-  };
+  return fetch(targetUrl, {
+    method: originalRequest.method,
+    headers: proxyHeaders,
+    body: originalRequest.body,
+    redirect: "follow"
+  });
+}
+
+function ensureContentType(headers) {
+  if (!headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/octet-stream");
+  }
+}
+
+function isDownloadable(headers) {
+  const contentType = headers.get("Content-Type") || "";
+  return /application\/|octet-stream|zip|pdf|excel|word/i.test(contentType);
+}
+
+function addDownloadHeaders(headers, targetUrl) {
+  let filename = "download";
   
-  for (const [mime, ext] of Object.entries(mimeToExt)) {
-    if (contentType.includes(mime)) return ext;
+  // 从 Content-Disposition 提取文件名
+  const cdHeader = headers.get("Content-Disposition");
+  if (cdHeader && cdHeader.includes("filename=")) {
+    filename = cdHeader.split("filename=")[1].replace(/["']/g, "");
+  } 
+  // 从 URL 提取文件名
+  else {
+    const pathParts = targetUrl.split("/");
+    const lastPart = pathParts.pop() || "download";
+    filename = lastPart.split(/[?#]/)[0];
   }
   
-  // 2. 从 URL 路径获取扩展名
-  const url = originalHeaders.get("X-Final-URL") || proxyHeaders.get("X-Final-URL") || "";
-  if (url) {
-    const urlExtMatch = url.match(/\.([a-z0-9]{2,5})(?:[?#]|$)/i);
-    if (urlExtMatch) return urlExtMatch[1];
-  }
-  
-  // 3. 默认二进制扩展名
-  return 'bin';
+  headers.set("Content-Disposition", `attachment; filename="${filename}"`);
+}
+
+function handleError(error) {
+  return new Response(JSON.stringify({
+    error: "Proxy Error",
+    message: error.message
+  }), {
+    status: 500,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*"
+    }
+  });
 }
