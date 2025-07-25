@@ -4,7 +4,7 @@ export async function onRequest(context) {
   try {
     const url = new URL(request.url);
     const targetUrl = url.searchParams.get('url');
-    const filename = url.searchParams.get('filename');
+    const fileName = url.searchParams.get('filename');
     if (!targetUrl) return badRequest('Missing URL parameter');
 
     if (request.method === 'OPTIONS') return handleOptions(request);
@@ -35,7 +35,7 @@ export async function onRequest(context) {
 
     // 为可下载文件添加头
     if (isDownloadable(proxyResponse.headers)) {
-      addDownloadHeaders(proxyResponse.headers, filename, targetUrl);
+      addDownloadHeaders(proxyResponse.headers, fileName, targetUrl);
     }
 
     return proxyResponse;
@@ -93,8 +93,8 @@ function isDownloadable(headers) {
   return /application\/|octet-stream|zip|pdf|excel|word/i.test(contentType);
 }
 
-function addDownloadHeaders(headers, filename, targetUrl) {
-  let filename = 'download';
+function addDownloadHeaders(headers, fileName, targetUrl) {
+  let filename = fileName || 'download';
 
   // // 从 Content-Disposition 提取文件名
   // const cdHeader = headers.get('Content-Disposition');
