@@ -85,9 +85,12 @@
               <span>播放全部</span>
             </el-button>
             <div>
-              标签：<span class="text-[var(--theme-color)]">{{
-                detail.tags?.length ? detail.tags?.join('、') : '暂无'
-              }}</span>
+              标签：<span
+                v-if="detail.tags?.length"
+                class="text-[var(--theme-color)]"
+                >{{ detail.tags?.join('、') }}</span
+              >
+              <span v-else>暂无</span>
             </div>
             <div class="flex gap-4">
               <div>
