@@ -390,7 +390,7 @@ export function useMusicPlayer() {
       const musicUrl = data[0].url;
 
       // 发起请求以获取音乐文件的二进制数据
-      fetch(`/proxy/${encodeURIComponent(musicUrl)}`)
+      fetch(`https://cloudmusic.pages.dev/proxy/${encodeURIComponent(musicUrl)}`)
         .then(response => response.blob()) // 将响应转换为 blob
         .then(blob => {
           const link = document.createElement('a');
