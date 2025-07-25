@@ -4,6 +4,7 @@ export async function onRequest(context) {
   try {
     const url = new URL(request.url);
     const targetUrl = url.searchParams.get('url');
+    const filename = url.searchParams.get('filename');
     if (!targetUrl) return badRequest('Missing URL parameter');
 
     if (request.method === 'OPTIONS') return handleOptions(request);
@@ -34,7 +35,7 @@ export async function onRequest(context) {
 
     // 为可下载文件添加头
     if (isDownloadable(proxyResponse.headers)) {
-      addDownloadHeaders(proxyResponse.headers, targetUrl);
+      addDownloadHeaders(proxyResponse.headers, filename, targetUrl);
     }
 
     return proxyResponse;
@@ -92,20 +93,20 @@ function isDownloadable(headers) {
   return /application\/|octet-stream|zip|pdf|excel|word/i.test(contentType);
 }
 
-function addDownloadHeaders(headers, targetUrl) {
+function addDownloadHeaders(headers, filename, targetUrl) {
   let filename = 'download';
 
-  // 从 Content-Disposition 提取文件名
-  const cdHeader = headers.get('Content-Disposition');
-  if (cdHeader && cdHeader.includes('filename=')) {
-    filename = cdHeader.split('filename=')[1].replace(/["']/g, '');
-  }
-  // 从 URL 提取文件名
-  else {
-    const pathParts = targetUrl.split('/');
-    const lastPart = pathParts.pop() || 'download';
-    filename = lastPart.split(/[?#]/)[0];
-  }
+  // // 从 Content-Disposition 提取文件名
+  // const cdHeader = headers.get('Content-Disposition');
+  // if (cdHeader && cdHeader.includes('filename=')) {
+  //   filename = cdHeader.split('filename=')[1].replace(/["']/g, '');
+  // }
+  // // 从 URL 提取文件名
+  // else {
+  //   const pathParts = targetUrl.split('/');
+  //   const lastPart = pathParts.pop() || 'download';
+  //   filename = lastPart.split(/[?#]/)[0];
+  // }
 
   headers.set('Content-Disposition', `attachment; filename="${filename}"`);
 }

@@ -386,64 +386,57 @@ export function useMusicPlayer() {
       level: 'standard',
       br: 320000,
       cookie: localStorage.getItem('cookie') || '',
-    }).then(({ data }) => {
-      const musicUrl = data[0].url;
+    })
+      .then(({ data }) => {
+        const musicUrl = data[0].url;
 
-      // 发起请求以获取音乐文件的二进制数据
-      // fetch(`https://cloudmusic.pages.dev/proxy/${encodeURIComponent(musicUrl)}`)
-      //   .then(response => response.blob()) // 将响应转换为 blob
-      //   .then(blob => {
-      //     const link = document.createElement('a');
-      //     const url = URL.createObjectURL(blob); // 创建blob URL
+        // 发起请求以获取音乐文件的二进制数据
+        // fetch(`https://cloudmusic.pages.dev/proxy/${encodeURIComponent(musicUrl)}`)
+        //   .then(response => response.blob()) // 将响应转换为 blob
+        //   .then(blob => {
+        //     const link = document.createElement('a');
+        //     const url = URL.createObjectURL(blob); // 创建blob URL
 
-      //     // 设置下载链接
-      //     link.href = url;
-      //     if (row.ar) {
-      //       link.setAttribute(
-      //         'download',
-      //         `${row.ar.map(item => item.name).join(' ')} - ${row.name}`
-      //       ); // 修改下载的文件名
-      //     } else {
-      //       link.setAttribute('download', `${row.singer} - ${row.title}`); // 修改下载的文件名
-      //     }
-      //     document.body.appendChild(link); // 将链接添加到DOM中（临时）
-      //     link.click(); // 触发点击下载
+        //     // 设置下载链接
+        //     link.href = url;
+        //     if (row.ar) {
+        //       link.setAttribute(
+        //         'download',
+        //         `${row.ar.map(item => item.name).join(' ')} - ${row.name}`
+        //       ); // 修改下载的文件名
+        //     } else {
+        //       link.setAttribute('download', `${row.singer} - ${row.title}`); // 修改下载的文件名
+        //     }
+        //     document.body.appendChild(link); // 将链接添加到DOM中（临时）
+        //     link.click(); // 触发点击下载
 
-      //     // 清理 URL 对象和链接
-      //     URL.revokeObjectURL(url);
-      //     document.body.removeChild(link); // 删除链接
-      //   })
-      //   .catch(error => {
-      //     console.error('Download failed:', error);
-      //   });
+        //     // 清理 URL 对象和链接
+        //     URL.revokeObjectURL(url);
+        //     document.body.removeChild(link); // 删除链接
+        //   })
+        //   .catch(error => {
+        //     console.error('Download failed:', error);
+        //   });
 
-      fetch(`https://cloudmusic.pages.dev/proxy?url=${encodeURIComponent(musicUrl)}`)
-        .then(response => response.blob()) // 将响应转换为 blob
-        .then(blob => {
-          const link = document.createElement('a');
-          const url = URL.createObjectURL(blob); // 创建blob URL
-
-          // 设置下载链接
-          link.href = url;
-          if (row.ar) {
-            link.setAttribute(
-              'download',
-              `${row.ar.map(item => item.name).join(' ')} - ${row.name}`
-            ); // 修改下载的文件名
-          } else {
-            link.setAttribute('download', `${row.singer} - ${row.title}`); // 修改下载的文件名
-          }
-          document.body.appendChild(link); // 将链接添加到DOM中（临时）
-          link.click(); // 触发点击下载
-
-          // 清理 URL 对象和链接
-          URL.revokeObjectURL(url);
-          document.body.removeChild(link); // 删除链接
-        })
-        .catch(error => {
-          console.error('Download failed:', error);
-        });
-    });
+        const link = document.createElement('a');
+        if (row.ar) {
+          link.download = `${row.ar.map(item => item.name).join(' ')} - ${
+            row.name
+          }.mp3`;
+        } else {
+          link.download = `${row.singer} - ${row.title}.mp3`;
+        }
+        // 设置下载链接
+        link.href = `https://cloudmusic.pages.dev/proxy?url=${encodeURIComponent(
+          musicUrl
+        )}&filename=${encodeURIComponent(link.download)}`;
+        document.body.appendChild(link); // 将链接添加到DOM中（临时）
+        link.click(); // 触发点击下载
+        document.body.removeChild(link); // 删除链接
+      })
+      .catch(error => {
+        console.error('Download failed:', error);
+      });
   };
 
   return {
