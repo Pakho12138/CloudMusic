@@ -1,3 +1,4 @@
+import router from '@/router';
 import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore(
@@ -23,13 +24,21 @@ export const useUserStore = defineStore(
       return userInfo.value.userId;
     });
 
+    const logout = () => {
+      userInfo.value = {};
+      localStorage.removeItem('cookie');
+      router.push('/'); // 跳转到首页
+      location.reload();
+    };
+
     return {
       userInfo,
       setUserInfo,
       loginDialogVisible,
       openLoginDialog,
       closeLoginDialog,
-      isLogin
+      isLogin,
+      logout,
     };
   },
   {
@@ -39,7 +48,7 @@ export const useUserStore = defineStore(
       // 自定义存储键名
       key: 'userInfo',
       // 只存储某个字段
-      pick: ['userInfo'], 
+      pick: ['userInfo'],
     },
   }
 );

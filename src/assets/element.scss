@@ -157,3 +157,20 @@ body {
 .el-loading-spinner .path {
   stroke: var(--theme-color) !important;
 }
+
+.el-dropdown {
+  .el-tooltip__trigger {
+    outline: none !important;
+  }
+}
+
+.el-dropdown-menu {
+  background-color: var(--content-bg) !important;
+  .el-dropdown-menu__item {
+    color: var(--button-inactive) !important;
+    &:hover {
+      background-color: var(--theme-bg-color) !important;
+      color: var(--theme-color) !important;
+    }
+  }
+}

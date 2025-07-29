@@ -10,7 +10,7 @@
         <el-icon><Film /></el-icon>
         <template #title>MV</template>
       </el-menu-item>
-      <el-menu-item index="playlist">
+      <el-menu-item index="playlist" v-if="userStore.isLogin">
         <Icon
           icon="icon-park-solid:music-list"
           class="menu-icon" />
@@ -21,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '@/stores/useUserStore';
 import { Icon } from '@iconify/vue';
 import { onMounted, ref } from 'vue';
 
@@ -29,6 +30,7 @@ onMounted(() => {});
 const defaultActive = ref('');
 const route = useRoute();
 const router = useRouter();
+const userStore = useUserStore();
 const handleSelect = (idx: string) => {
   router.replace({ name: idx });
 };

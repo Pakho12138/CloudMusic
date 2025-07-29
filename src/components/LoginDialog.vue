@@ -48,12 +48,16 @@
               <el-form-item label="手机号">
                 <el-input
                   v-model="loginForm.phone"
-                  placeholder="请输入手机号" />
+                  placeholder="请输入手机号"
+                  maxlength="11"
+                  clearable />
               </el-form-item>
               <el-form-item label="验证码">
                 <el-input
                   v-model="loginForm.code"
                   placeholder="请输入验证码"
+                  maxlength="4"
+                  clearable
                   style="width: 60%" />
                 <el-button
                   type="primary"
@@ -103,7 +107,7 @@ watch(
     if (newValue) {
       scanSuccess.value = false;
       avatarUrl.value = '';
-      curTab.value = 'phone';
+      curTab.value = 'qrcode';
       isQrLoading.value = true;
       !uniKey.value && (await getQrKey());
       createQrCode();
@@ -176,10 +180,9 @@ const checkQrCode = async () => {
       scanSuccess.value = true;
       break;
     case 803: //授权登录成功
-      console.log('登录成功');
       clearInterval(qrInterval);
       await getLoginStatus(res.cookie);
-      localStorage.setItem('cookie', res.cookie)
+      localStorage.setItem('cookie', res.cookie);
       break;
   }
 };
@@ -192,6 +195,7 @@ const getLoginStatus = async (cookie: string = '') => {
     res.data?.profile && userStore.setUserInfo(res.data.profile);
     userStore.closeLoginDialog();
     ElNotification.success('登录成功');
+    emit('loginSuccess');
   } else {
     ElNotification.error(res.data?.message || '登录失败');
   }
@@ -203,10 +207,10 @@ const tabs = ref<Array<any>>([
     label: '二维码登录',
     name: 'qrcode',
   },
-  {
-    label: '验证码登录',
-    name: 'phone',
-  },
+  // {
+  //   label: '验证码登录',
+  //   name: 'phone',
+  // },
 ]);
 
 const loginForm = ref({
@@ -250,9 +254,8 @@ const handleLogin = async () => {
   });
   if (res.code == 200) {
     console.log(res.data);
-    ElNotification.success('登录成功');
-    emit('loginSuccess', loginForm.value);
-    closeLoginDialog();
+    await getLoginStatus(res.cookie);
+    localStorage.setItem('cookie', res.cookie);
   }
 };
 

@@ -12,7 +12,7 @@
       <!--歌名-->
       <el-table-column prop="name" label="歌名" minWidth="160">
         <template #default="{ row }">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-2">
             <div class="min-w-10 h-10">
               <el-image
                 class="w-full h-full rounded-lg"
@@ -20,12 +20,25 @@
                 :src="row.al.picUrl + '?param=90y90'"
                 :alt="row.al.name" />
             </div>
-            <span
-              class="line-clamp-1 cursor-pointer"
-              @click="router.push(`/search?kw=${row.name}`)"
-              :title="row.name"
-              >{{ row.name }}</span
-            >
+            <div>
+              <div
+                class="line-clamp-1 cursor-pointer"
+                @click="router.push(`/search?kw=${row.name}`)"
+                :title="
+                  row.tns?.length
+                    ? row.name + '（' + row.tns[0] + '）'
+                    : row.name
+                ">
+                <span
+                  v-if="row.fee == 1"
+                  class="text-[0.625rem] leading-tight text-[#FFD700] border border-[#FFD700] rounded px-1 mr-1"
+                  >VIP</span
+                >{{ row.name
+                }}<span v-if="row.tns?.length" class="text-[--button-inactive]"
+                  >（{{ row.tns[0] }}）</span
+                >
+              </div>
+            </div>
           </div>
         </template>
       </el-table-column>
@@ -150,9 +163,9 @@ const getData = async (isRefresh: boolean = false) => {
       state.currentPage = 1;
       state.total = 0;
     }
-    
+
     isLoading.value = true;
-    
+
     let res;
     switch (props.type) {
       case 'playlist':

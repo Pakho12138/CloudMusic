@@ -26,26 +26,52 @@
         </el-input>
       </div>
 
-      <div class="flex items-center gap-2" @click="login">
-        <el-avatar
-          v-if="userStore.userInfo?.avatarUrl"
-          :src="userStore.userInfo.avatarUrl"
-          class="can-click"
-          shape="circle"
-          :size="40" />
-        <div
-          v-else
-          class="can-click w-10 h-10 flex items-center justify-center rounded-[50%] bg-[--search-bg]">
-          <el-icon class="!text-[--inactive-color] !text-xl"
-            ><UserFilled
-          /></el-icon>
+      <el-dropdown size="large" placement="bottom-end" @command="handleDropdownCommand" :disabled="!userStore.isLogin">
+        <div class="flex items-center gap-2 pr-[30px]" @click="login">
+          <el-avatar
+            v-if="userStore.userInfo?.avatarUrl"
+            :src="userStore.userInfo.avatarUrl"
+            class="can-click"
+            shape="circle"
+            :size="40" />
+          <div
+            v-else
+            class="can-click w-10 h-10 flex items-center justify-center rounded-[50%] bg-[--search-bg]">
+            <el-icon class="!text-[--inactive-color] !text-xl"
+              ><UserFilled
+            /></el-icon>
+          </div>
+          <div
+            v-if="!userStore.userInfo?.userId"
+            class="can-click text-[--button-inactive] text-sm mr-2">
+            登录
+          </div>
         </div>
-        <div
-          v-if="!userStore.userInfo?.userId"
-          class="can-click text-[--button-inactive] text-sm mr-2">
-          登录
-        </div>
-      </div>
+        <template #dropdown>
+          <el-dropdown-menu class="w-[160px]">
+            <div
+              class="py-[10px] px-[16px] bg-[--theme-bg-color] text-base text-center mx-[7px] mb-[7px] rounded">
+              <b>{{ userStore.userInfo.nickname }}</b>
+              <div
+                class="flex items-center justify-center text-[--button-inactive] text-sm mt-1">
+                <Icon
+                  v-if="userStore.userInfo.gender === 1"
+                  icon="material-symbols:male-rounded"
+                  class="text-lg mr-1 !text-[deepskyblue]"></Icon>
+                <Icon
+                  v-if="userStore.userInfo.gender === 2"
+                  icon="material-symbols:female-rounded"
+                  class="text-lg mr-1 !text-[hotpink]"></Icon>
+                <span>等级：Lv{{ userStore.userInfo.level || 1 }}</span>
+              </div>
+            </div>
+            <el-dropdown-item class="justify-center" command="logout">
+              <Icon icon="material-symbols:logout" class="text-base mr-1"></Icon
+              >退出登录</el-dropdown-item
+            >
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
     </div>
   </div>
 </template>
@@ -64,6 +90,9 @@ const userStore = useUserStore();
 
 onMounted(() => {
   searchDefault();
+  if (userStore.isLogin && localStorage.getItem('cookie')) {
+    getUserDetail();
+  }
 });
 
 const keyWord = ref(route.query.kw || '');
@@ -81,13 +110,27 @@ const toSearch = () => {
 };
 
 const login = () => {
-  // ElNotification({
-  //   title: '提示',
-  //   message: '暂未开放',
-  //   type: 'warning',
-  // });
-  // !userStore.isLogin && userStore.openLoginDialog();
   !userStore.isLogin && userStore.openLoginDialog();
+};
+
+const getUserDetail = async () => {
+  const res: any = await Api.post('/user/detail', {
+    uid: userStore.userInfo.userId,
+  });
+  if (res.code == 200) {
+    res?.profile && userStore.setUserInfo({ ...res.profile, level: res.level });
+  }
+};
+
+const handleDropdownCommand = (command: string) => {
+  if (command === 'logout') {
+    userStore.logout();
+    ElNotification({
+      title: '成功',
+      message: '已退出登录',
+      type: 'success',
+    });
+  }
 };
 </script>
 
@@ -99,7 +142,7 @@ const login = () => {
   height: 58px;
   width: 100%;
   border-bottom: 1px solid var(--border-color);
-  padding: 0 30px;
+  padding: 0 0 0 30px;
   white-space: nowrap;
   .menu-circle {
     width: 15px;
