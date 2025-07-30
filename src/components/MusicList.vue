@@ -10,7 +10,7 @@
         <span v-show="!isLoading">暂无数据</span>
       </template>
       <!--歌名-->
-      <el-table-column prop="name" label="歌名" minWidth="160">
+      <el-table-column prop="name" label="歌名" minWidth="200">
         <template #default="{ row }">
           <div class="flex items-center gap-2">
             <div class="min-w-10 h-10">
@@ -66,7 +66,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="时间">
+      <el-table-column label="时间" width="100">
         <template #default="{ row }">
           <span>
             {{ formatMillisecondsToTime(row.dt) }}

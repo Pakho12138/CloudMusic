@@ -26,7 +26,11 @@
         </el-input>
       </div>
 
-      <el-dropdown size="large" placement="bottom-end" @command="handleDropdownCommand" :disabled="!userStore.isLogin">
+      <el-dropdown
+        size="large"
+        placement="bottom-end"
+        @command="handleDropdownCommand"
+        :disabled="!userStore.isLogin">
         <div class="flex items-center gap-2 pr-[30px]" @click="login">
           <el-avatar
             v-if="userStore.userInfo?.avatarUrl"
@@ -48,10 +52,16 @@
           </div>
         </div>
         <template #dropdown>
-          <el-dropdown-menu class="w-[160px]">
+          <el-dropdown-menu class="min-w-[160px]">
             <div
               class="py-[10px] px-[16px] bg-[--theme-bg-color] text-base text-center mx-[7px] mb-[7px] rounded">
-              <b>{{ userStore.userInfo.nickname }}</b>
+              <div class="flex items-center justify-center gap-2">
+                <b v-if="userStore.userInfo?.vipType == 110"
+                  class="text-sm text-[#FFD700] italic"
+                  >SVIP</b
+                >
+                <b>{{ userStore.userInfo.nickname }}</b>
+              </div>
               <div
                 class="flex items-center justify-center text-[--button-inactive] text-sm mt-1">
                 <Icon
@@ -62,7 +72,7 @@
                   v-if="userStore.userInfo.gender === 2"
                   icon="material-symbols:female-rounded"
                   class="text-lg mr-1 !text-[hotpink]"></Icon>
-                <span>等级：Lv{{ userStore.userInfo.level || 1 }}</span>
+                <div>等级：<b>Lv{{ userStore.userInfo.level || 1 }}</b></div>
               </div>
             </div>
             <el-dropdown-item class="justify-center" command="logout">
@@ -90,7 +100,7 @@ const userStore = useUserStore();
 
 onMounted(() => {
   searchDefault();
-  if (userStore.isLogin && localStorage.getItem('cookie')) {
+  if (localStorage.getItem('cookie')) {
     getUserDetail();
   }
 });
@@ -114,12 +124,21 @@ const login = () => {
 };
 
 const getUserDetail = async () => {
-  const res: any = await Api.post('/user/detail', {
-    uid: userStore.userInfo.userId,
-  });
-  if (res.code == 200) {
-    res?.profile && userStore.setUserInfo({ ...res.profile, level: res.level });
+  const params = {
+    cookie: localStorage.getItem('cookie'),
+  };
+  const res: any = await Promise.all([
+    Api.post('/user/account', params),
+    Api.post('/user/level', params),
+  ]);
+  let userInfo = {};
+  if (res[0]?.code == 200) {
+    userInfo = res[0].profile || {};
   }
+  if (res[1]?.code == 200) {
+    userInfo = { ...userInfo, level: res[1].data?.level || 1 };
+  }
+  userStore.setUserInfo(userInfo);
 };
 
 const handleDropdownCommand = (command: string) => {

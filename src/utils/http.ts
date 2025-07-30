@@ -23,10 +23,7 @@ instance.interceptors.request.use(
     Object.assign(config.params, {
       timestamp: Date.now(),
       realIP: '116.25.146.177',
-      withCredentials: true,
     });
-
-    config.params?.cookie && encodeURIComponent(config.params.cookie);
     return config;
   },
   (error: AxiosError) => {

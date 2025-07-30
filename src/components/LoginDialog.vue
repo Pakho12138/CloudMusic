@@ -182,7 +182,7 @@ const checkQrCode = async () => {
     case 803: //授权登录成功
       clearInterval(qrInterval);
       await getLoginStatus(res.cookie);
-      localStorage.setItem('cookie', res.cookie);
+      localStorage.setItem('cookie', encodeURIComponent(res.cookie || ''));
       break;
   }
 };
@@ -255,7 +255,7 @@ const handleLogin = async () => {
   if (res.code == 200) {
     console.log(res.data);
     await getLoginStatus(res.cookie);
-    localStorage.setItem('cookie', res.cookie);
+    localStorage.setItem('cookie', encodeURIComponent(res.cookie || ''));
   }
 };
 

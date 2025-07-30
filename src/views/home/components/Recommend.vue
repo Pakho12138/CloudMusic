@@ -40,7 +40,7 @@
         <el-row :gutter="24">
           <el-col class="pt-2 pb-2" :span="4" v-for="item in personalized" :key="item.id">
             <div>
-              <el-image class="can-click w-full h-full rounded-xl" style="width: 100%; height: 100%" :src="item.picUrl" fit="cover" />
+              <el-image class="can-click w-full h-full rounded-xl aspect-square" :src="item.picUrl" fit="cover" />
               <div class="can-click line-clamp-2 text-[--theme-color]">{{ item.name }}</div>
             </div>
           </el-col>
