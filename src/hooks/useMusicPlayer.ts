@@ -400,7 +400,7 @@ export function useMusicPlayer() {
         // 设置下载链接
         link.href = `https://cloudmusic.pages.dev/proxy?url=${encodeURIComponent(
           musicUrl
-        )}&filename=${encodeURIComponent(link.download)}`;
+        )}&filename=${encodeURIComponent(link.download)}&download=true`;
         document.body.appendChild(link); // 将链接添加到DOM中（临时）
         link.click(); // 触发点击下载
         document.body.removeChild(link); // 删除链接
