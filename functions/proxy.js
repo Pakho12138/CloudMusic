@@ -5,6 +5,7 @@ export async function onRequest(context) {
     const url = new URL(request.url);
     const targetUrl = url.searchParams.get('url');
     const fileName = url.searchParams.get('filename');
+    const isDownload = url.searchParams.get('download');
     if (!targetUrl) return badRequest('Missing URL parameter');
 
     if (request.method === 'OPTIONS') return handleOptions(request);
@@ -34,7 +35,7 @@ export async function onRequest(context) {
     ensureContentType(proxyResponse.headers);
 
     // 为可下载文件添加头
-    if (isDownloadable(proxyResponse.headers)) {
+    if (isDownload === 'true' || isDownloadable(proxyResponse.headers)) {
       addDownloadHeaders(proxyResponse.headers, fileName, targetUrl);
     }
 
@@ -90,7 +91,8 @@ function ensureContentType(headers) {
 
 function isDownloadable(headers) {
   const contentType = headers.get('Content-Type') || '';
-  return /application\/|octet-stream|zip|pdf|excel|word/i.test(contentType);
+  // 精确匹配常见可下载文件的 MIME 类型
+  return /(application\/(zip|pdf|octet-stream|vnd\.ms-excel|vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|msword|vnd\.openxmlformats-officedocument\.wordprocessingml\.document)|audio\/|video\/)/i.test(contentType);
 }
 
 function addDownloadHeaders(headers, fileName, targetUrl) {
