@@ -11,10 +11,12 @@
         <template #title>MV</template>
       </el-menu-item>
       <el-menu-item index="playlist" v-if="userStore.isLogin">
-        <Icon
-          icon="icon-park-solid:music-list"
-          class="menu-icon" />
+        <Icon icon="icon-park-solid:music-list" class="menu-icon" />
         <template #title>我的歌单</template>
+      </el-menu-item>
+      <el-menu-item index="recently" v-if="userStore.isLogin">
+        <Icon icon="carbon:recently-viewed" class="menu-icon" />
+        <template #title>最近播放</template>
       </el-menu-item>
     </el-menu>
   </div>

@@ -35,6 +35,11 @@ const router = createRouter({
       name: 'playlistDetail',
       component: () => import('../views/playlist/playlistDetail/index.vue'),
     },
+    {
+      path: '/recently',
+      name: 'recently',
+      component: () => import('../views/recently/index.vue'),
+    },
   ],
 });
 
