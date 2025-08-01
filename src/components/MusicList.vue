@@ -20,24 +20,22 @@
                 :src="row.al.picUrl + '?param=90y90'"
                 :alt="row.al.name" />
             </div>
-            <div>
-              <div
-                class="line-clamp-1 cursor-pointer"
-                @click="router.push(`/search?kw=${row.name}`)"
-                :title="
-                  row.tns?.length
-                    ? row.name + '（' + row.tns[0] + '）'
-                    : row.name
-                ">
-                <span
-                  v-if="row.fee == 1"
-                  class="text-[0.625rem] leading-tight text-[#FFD700] border border-[#FFD700] rounded px-1 mr-1"
-                  >VIP</span
-                >{{ row.name
-                }}<span v-if="row.tns?.length" class="text-[--button-inactive]"
-                  >（{{ row.tns[0] }}）</span
-                >
-              </div>
+            <div
+              class="flex items-center leading-[1.4]"
+              :title="
+                row.tns?.length ? row.name + '（' + row.tns[0] + '）' : row.name
+              ">
+              <span
+                v-if="row.fee == 1"
+                class="text-[0.625rem] leading-[1.2] text-[#FFD700] border border-[#FFD700] rounded px-1 mr-1"
+                >VIP</span
+              >
+              <span> {{ row.name }} </span>
+              <span
+                v-if="row.tns?.length"
+                class="text-[--button-inactive] line-clamp-1 flex-1"
+                >（{{ row.tns[0] }}）</span
+              >
             </div>
           </div>
         </template>
@@ -66,7 +64,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="时间" width="100">
+      <el-table-column label="时间" width="100" align="center">
         <template #default="{ row }">
           <span>
             {{ formatMillisecondsToTime(row.dt) }}
@@ -264,9 +262,34 @@ const handleCurrentChange = (current: number) => {
   getData();
 };
 
+const playAll = () => {
+  if (tableData.value && tableData.value.length > 0) {
+    const tracks: Track[] = tableData.value.map(row => ({
+      id: row.id,
+      title: row.name,
+      singer: row.ar.map((ar: any) => ar.name).join(' / '),
+      album: row.al.name,
+      cover: row.al.picUrl,
+      time: row.dt,
+      source: '',
+      mv: row.mv as number,
+    }));
+    AudioStore.trackList = tracks;
+    AudioStore.setCurrentSong(0);
+    playSong();
+  } else {
+    ElNotification({
+      title: '提示',
+      message: '当前列表没有歌曲',
+      type: 'warning',
+    });
+  }
+};
+
 defineExpose({
   getData,
   tableData,
+  playAll,
 });
 </script>
 

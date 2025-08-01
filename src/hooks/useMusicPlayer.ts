@@ -8,9 +8,10 @@ import { useAudioStore } from '@/stores/useAudioStore';
 import type { Song, Track } from './interface';
 import { useThrottleFn } from '@vueuse/core';
 import { calculatePagination } from '@/utils/util';
+import { useUserStore } from '@/stores/useUserStore';
 
 export function useMusicPlayer() {
-  const audioStore = useAudioStore();
+  const AudioStore = useAudioStore();
   // 默认数据
   const defaultSong = {
     title: '未选择歌曲',
@@ -20,7 +21,7 @@ export function useMusicPlayer() {
   // 计算属性，用来获取当前播放的歌曲
   const currentSong = computed(
     () =>
-      audioStore.trackList[audioStore.currentSongIndex as number] || defaultSong
+      AudioStore.trackList[AudioStore.currentSongIndex as number] || defaultSong
   );
   // 用于追踪播放状态的响应式变量
   const isPlaying = ref(false);
@@ -54,16 +55,18 @@ export function useMusicPlayer() {
     mid: 0, // 中音
     treble: 0, // 高音
   });
+  let isFirst = true; // 用于判断是否第一次加载
+  const userStore = useUserStore();
 
   // 在组件挂载时添加事件监听器
   onMounted(() => {
-    getDetail();
-    audio.src = currentSong.value.source;
+    userStore.isLogin && getLikeList();
+    playSong(); // 默认播放当前歌曲
     audio.onloadstart = () => {
       isLoading.value = true;
     };
     audio.oncanplaythrough = () => {
-      isLoading.value = isLoadingNew.value || false;
+      isLoading.value = false;
     };
     audio.ontimeupdate = useThrottleFn(() => {
       if (isChanging && currentTime.value == Math.round(audio.currentTime)) {
@@ -112,13 +115,13 @@ export function useMusicPlayer() {
         if (!currentSong.value?.id) return;
 
         // 尝试获取新的音源地址，然后重新播放
-        const { data } = await Api.get('song/url', {
+        const { data } = await Api.get('song/url/v1', {
           id: currentSong.value.id,
           level: 'standard',
           br: 128000,
         });
         audio.src = data[0].url;
-        audioStore.setCurrentSongUrl(data[0].url);
+        AudioStore.setCurrentSongUrl(data[0].url);
         audio.load();
       } catch (e) {
         // 如果有获取新源失败的专用错误信息
@@ -151,7 +154,7 @@ export function useMusicPlayer() {
         }); // 调用 API 获取歌词
         lyricsData.value = parseAndMergeLyrics(result);
         // 缓存歌词
-        audioStore.setCurrentSonglyrics(lyricsData.value);
+        AudioStore.setCurrentSonglyrics(lyricsData.value);
       }
       // 初始化歌词
       findCurrentLyricIndex();
@@ -233,14 +236,12 @@ export function useMusicPlayer() {
         playRandomSong();
         break;
       default: // 对于单曲循环模式、顺序播放和列表循环模式，播放列表中的下一首歌
-        let nextIndex = (audioStore.currentSongIndex as number) + 1;
-        if (nextIndex >= audioStore.trackList.length) {
+        let nextIndex = (AudioStore.currentSongIndex as number) + 1;
+        if (nextIndex >= AudioStore.trackList.length) {
           nextIndex = 0; // 如果是最后一首歌，则回到列表的开始
         }
-        audioStore.setCurrentSong(nextIndex);
-        getDetail();
-        audio.src = currentSong.value.source; // 更新audio元素的资源地址
-        play();
+        AudioStore.setCurrentSong(nextIndex);
+        playSong();
         break;
     }
   }
@@ -249,23 +250,19 @@ export function useMusicPlayer() {
   function playPrevious() {
     if (!currentSong.value?.id) return;
 
-    let previousIndex = (audioStore.currentSongIndex as number) - 1;
+    let previousIndex = (AudioStore.currentSongIndex as number) - 1;
     if (previousIndex < 0) {
-      previousIndex = audioStore.trackList.length - 1; // 如果是第一首歌，则跳到列表的最后
+      previousIndex = AudioStore.trackList.length - 1; // 如果是第一首歌，则跳到列表的最后
     }
-    audioStore.setCurrentSong(previousIndex);
-    getDetail();
-    audio.src = currentSong.value.source; // 更新audio元素的资源地址
-    play();
+    AudioStore.setCurrentSong(previousIndex); // 播放上一首歌曲
+    playSong();
   }
 
   // 随机播放一首歌曲
   function playRandomSong() {
-    const randomIndex = Math.floor(Math.random() * audioStore.trackList.length);
-    audioStore.setCurrentSong(randomIndex); // 设置当前歌曲为随机选择的歌曲
-    getDetail();
-    audio.src = currentSong.value.source; // 更新audio元素的资源地址
-    play();
+    const randomIndex = Math.floor(Math.random() * AudioStore.trackList.length);
+    AudioStore.setCurrentSong(randomIndex); // 设置当前歌曲为随机选择的歌曲
+    playSong();
   }
 
   // 用户拖动进度条时的时间变化（这里取到的时间为准确时间，用于处理change事件返回值不准确的问题）
@@ -290,30 +287,31 @@ export function useMusicPlayer() {
   };
 
   // 添加播放歌曲的方法
-  const isLoadingNew = ref(false); // 新歌曲是否正在加载
-  const playSong = async (song: Track) => {
-    resetAudio();
-    isLoading.value = true; // 设置加载状态
-    isLoadingNew.value = true; // 新歌曲正在加载
-    const res: any = await Api.get('song/url', {
-      id: song.id,
-      level: 'standard',
-      br: 128000,
-      cookie: localStorage.getItem('cookie') || '',
-    });
-    if (res.code == 200) {
-      isLoadingNew.value = false; // 加载完成，设置加载状态
-      const data = res.data;
-      audio.src = data[0].url; // 确保您设置此歌曲的音频源
-      getDetail(); // 加载数据
-      play(); // 播放歌曲
-    } else {
-      ElNotification({
-        title: '错误',
-        message: '播放失败',
-        type: 'error',
+  const playSong = async (song: Track = currentSong.value) => {
+    try {
+      resetAudio();
+      isLoading.value = true; // 设置加载状态
+      const res: any = await Api.get('song/url', {
+        id: song.id,
+        level: 'standard',
+        br: 128000,
+        cookie: localStorage.getItem('cookie') || '',
       });
-      return;
+      if (res.code == 200) {
+        const data = res.data;
+        audio.src = data[0].url; // 确保您设置此歌曲的音频源
+        getDetail(); // 加载数据
+        !isFirst && play(); // 播放歌曲
+        isFirst = false;
+      } else {
+        ElNotification({
+          title: '错误',
+          message: '播放失败',
+          type: 'error',
+        });
+      }
+    } catch (error) {
+      console.error('Error playing song:', error);
     }
   };
 
@@ -410,6 +408,34 @@ export function useMusicPlayer() {
       });
   };
 
+  const getLikeList = async () => {
+    const res: any = await Api.get('likelist', {
+      uid: userStore.userInfo.userId,
+      cookie: localStorage.getItem('cookie') || '',
+    });
+    if (res.code == 200) {
+      AudioStore.likeList = res.ids || [];
+    }
+  };
+
+  const handleLike = async () => {
+    if (AudioStore.isLike) {
+      AudioStore.likeList = AudioStore.likeList.filter(
+        id => id !== currentSong.value.id
+      );
+    } else {
+      AudioStore.likeList.push(Number(currentSong.value.id));
+    }
+    const res: any = await Api.get('like', {
+      id: currentSong.value.id,
+      cookie: localStorage.getItem('cookie') || '',
+      like: AudioStore.isLike,
+    });
+    if (res.code == 200) {
+      getLikeList(); // 更新喜欢列表
+    }
+  };
+
   return {
     currentSong,
     isPlaying,
@@ -443,5 +469,6 @@ export function useMusicPlayer() {
     showDrawer,
     resetAudio,
     downLoadMusic,
+    handleLike,
   };
 }

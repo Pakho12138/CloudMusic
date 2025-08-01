@@ -4,7 +4,7 @@
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center">
           <h1 class="text-xl font-bold dark:text-white">
-            最近播放
+            播放列表
             <span class="text-base">({{ audioStore.trackList.length }})</span>
           </h1>
         </div>

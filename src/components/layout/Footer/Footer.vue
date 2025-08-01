@@ -57,13 +57,17 @@
 
       <Volume />
 
+      <!-- 添加点击事件 -->
       <Icon
         class="btn-like can-click"
-        :class="{ active: isLike }"
+        :class="{ active: AudioStore.isLike }"
         icon="solar:heart-bold"
         @click="handleLike" />
-      <Icon class="btn-download can-click" icon="material-symbols:download" @click="downLoadMusic()" />
-      
+      <Icon
+        class="btn-download can-click"
+        icon="material-symbols:download"
+        @click="downLoadMusic()" />
+
       <LocalhostSong />
     </div>
   </div>
@@ -71,6 +75,7 @@
 
 <script setup lang="ts">
 import type { MusicPlayer } from '@/hooks/interface';
+import { useAudioStore } from '@/stores/useAudioStore';
 import { Icon } from '@iconify/vue';
 import { inject, onMounted, ref } from 'vue';
 
@@ -86,14 +91,15 @@ const {
   changeCurrentTime,
   inputCurrentTime,
   setPlayMode,
-  downLoadMusic
+  downLoadMusic,
+  handleLike,
 } = inject('MusicPlayer') as MusicPlayer;
 
 const emit = defineEmits(['show']);
 
 onMounted(() => {});
 
-const isLike = ref<boolean>(false);
+const AudioStore = useAudioStore();
 
 // 格式化时间
 function formatTime(seconds: number): string {
@@ -106,10 +112,6 @@ function formatTime(seconds: number): string {
     .toString()
     .padStart(2, '0')}`;
 }
-
-const handleLike = () => {
-  isLike.value = !isLike.value;
-};
 </script>
 
 <style lang="scss" scoped>
@@ -179,8 +181,13 @@ const handleLike = () => {
       color: var(--button-inactive);
       font-size: 26px;
       margin-left: 20px;
+      transition: all 0.3s ease; // 添加过渡效果
       &.active {
         color: #c20c0c;
+        animation: heartBeat 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); // 添加心跳动画
+      }
+      &:active {
+        transform: scale(0.85); // 点击时缩小效果
       }
     }
     .btn-download {
@@ -188,6 +195,25 @@ const handleLike = () => {
       font-size: 30px;
       margin-left: 10px;
     }
+  }
+}
+
+// 添加心跳动画关键帧
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(1);
   }
 }
 </style>

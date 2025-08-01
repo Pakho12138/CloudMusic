@@ -1,8 +1,8 @@
 <template>
   <div class="flex items-center">
-    <div class="can-click text-[var(--button-inactive)] text-[26px]" @click="toggleVolume">
-      <Icon icon="iconamoon:volume-off-light" v-if="isMuted" />
-      <Icon icon="bi:volume-up" v-else />
+    <div class="can-click text-[var(--button-inactive)] text-[26px] mr-1" @click="toggleVolume">
+      <Icon icon="iconoir:sound-off-solid" v-if="isMuted" />
+      <Icon icon="iconoir:sound-high-solid" v-else />
     </div>
 
     <el-slider

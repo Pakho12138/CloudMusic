@@ -29,15 +29,13 @@
               <el-skeleton-item
                 variant="button"
                 class="text-sm !w-[104px] !h-[32px] !rounded-3xl my-2" />
-              <el-skeleton-item variant="text" class="!w-[200px] !h-[20px]" />
               <div class="flex gap-4">
-                <el-skeleton-item
-                  variant="text"
-                  class="!w-[80px] !h-[20px] mt-1" />
-                <el-skeleton-item
-                  variant="text"
-                  class="!w-[80px] !h-[20px] mt-1" />
+                <el-skeleton-item variant="text" class="!w-[80px] !h-[20px]" />
+                <el-skeleton-item variant="text" class="!w-[80px] !h-[20px]" />
               </div>
+              <el-skeleton-item
+                variant="text"
+                class="!w-[200px] !h-[20px] mt-1" />
               <el-skeleton-item variant="text" class="!w-full !h-[20px] mt-1" />
             </div>
           </div>
@@ -80,18 +78,11 @@
             <el-button
               class="text-sm w-[104px] my-2 flex items-center justify-center"
               type="primary"
-              round>
+              round
+              @click="musicListRef?.playAll">
               <Icon class="text-[19px] mr-[2px]" icon="ion:play" />
               <span>播放全部</span>
             </el-button>
-            <div>
-              标签：<span
-                v-if="detail.tags?.length"
-                class="text-[var(--theme-color)]"
-                >{{ detail.tags?.join('、') }}</span
-              >
-              <span v-else>暂无</span>
-            </div>
             <div class="flex gap-4">
               <div>
                 歌曲：<span class="text-[var(--theme-color)]"
@@ -103,6 +94,14 @@
                   >{{ detail.playCount || 0 }}次</span
                 >
               </div>
+            </div>
+            <div>
+              标签：<span
+                v-if="detail.tags?.length"
+                class="text-[var(--theme-color)]"
+                >{{ detail.tags?.join('、') }}</span
+              >
+              <span v-else>暂无</span>
             </div>
             <div>
               <div class="leading-5" :class="{ 'line-clamp-1': !isExpanded }">

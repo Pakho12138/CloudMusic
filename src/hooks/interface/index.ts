@@ -10,8 +10,8 @@ export interface themeState {
 
 export interface AudioStore {
   trackList: Track[]; // 歌曲列表
-  likeList: Array<number>; // 歌曲列表
   currentSongIndex: Number; // 当前正在播放的歌曲的索引
+  likeList: number[]; // 喜欢列表
 }
 
 // 定义单个音轨的接口
@@ -45,7 +45,7 @@ export interface MusicPlayer {
   changeCurrentTime: (currentTime: number) => void; // 改变当前播放时间
   inputCurrentTime: (currentTime: number) => void; // 改变当前播放时间（使用鼠标拖曳时，活动过程实时触发）
   setVolume: (volume: number) => void; // 设置音量
-  playSong: (param: Track) => void; // 播放指定的歌曲
+  playSong: (param?: Track) => void; // 播放指定的歌曲
   volume: Ref<number>; // 当前音量
   lyricsData: Ref<LyricData>; // 歌词数据
   Loadlyrics: () => Promise<void>; // 加载歌词
@@ -62,6 +62,7 @@ export interface MusicPlayer {
   eqSettings: Ref<{ bass: number; mid: number; treble: number }>; // EQ 设置
   updateEQ: (band: 'bass' | 'mid' | 'treble', value: number) => void; // 更新EQ的方法
   downLoadMusic: (row?: any) => void; // 下载音乐
+  handleLike: () => void; // 处理喜欢歌曲的逻辑
 }
 
 export interface Params {
