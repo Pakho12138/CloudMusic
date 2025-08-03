@@ -322,7 +322,7 @@ export function useMusicPlayer() {
         const data = res.data;
         audio.src = data[0].url;
         getDetail(); // 加载数据
-        if (!data?.length || !data[0].url) {
+        if (data?.length && data[0].url) {
           !isFirst && play(); // 播放歌曲
           isFirst = false;
         }

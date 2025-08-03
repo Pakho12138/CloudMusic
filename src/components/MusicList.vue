@@ -42,7 +42,7 @@
       </el-table-column>
       <el-table-column label="歌手" minWidth="120">
         <template #default="{ row }">
-          <div class="line-clamp-1">
+          <div class="line-clamp-1" :title="row.ar?.map(ar => ar.name)?.join(' / ')">
             <template v-if="row.ar && row.ar.length">
               <router-link
                 v-for="(item, index) in row.ar"
@@ -93,7 +93,7 @@
     </el-table>
 
     <el-pagination
-      v-if="type !== 'playlist'"
+      v-if="!['playlist', 'recently'].includes(type)"
       class="flex items-center justify-end mt-5"
       v-model:current-page="currentPage"
       v-model:page-size="pageSize"
@@ -137,7 +137,9 @@ const props = defineProps({
   },
 });
 
-onMounted(() => {});
+onMounted(() => {
+  getData(true);
+});
 
 const state = reactive({
   currentPage: 1,
@@ -171,6 +173,9 @@ const getData = async (isRefresh: boolean = false) => {
         break;
       case 'search':
         res = await getSearchlist();
+        break;
+      case 'recently':
+        res = await getRecently();
         break;
     }
     return res;
@@ -214,6 +219,25 @@ const getPlaylist = async () => {
 
   if (res.code == 200) {
     tableData.value = res.songs || [];
+  } else {
+    ElNotification({
+      title: '错误',
+      message: '加载失败',
+      type: 'error',
+    });
+  }
+  return res;
+};
+
+const getRecently = async () => {
+  const res: any = await Api.get('/record/recent/song', {
+    cookie: localStorage.getItem('cookie') || '',
+  });
+
+  if (res.code == 200) {
+    const list = res.data?.list || [];
+    state.total = res.data?.total || 0;
+    tableData.value = list.flatMap(item => item.data) || [];
   } else {
     ElNotification({
       title: '错误',
