@@ -24,11 +24,11 @@
             v-for="(song, index) in audioStore.trackList"
             :key="index"
             class="flex items-center px-4 py-1 hover:bg-[var(--theme-bg-color)] rounded-lg transition justify-between cursor-pointer"
-            :class="
-              audioStore.currentSongIndex == index
-                ? 'bg-[var(--theme-bg-color)]'
-                : ''
-            "
+            :class="{
+              'bg-[var(--theme-bg-color)]':
+                audioStore.currentSongIndex == index,
+              'opacity-50': song.disabled,
+            }"
             @click="playMusic(song.id)"
             @mouseover="mouseOverIndex = index"
             @mouseleave="mouseOverIndex = -1">
@@ -69,7 +69,7 @@
                 @click="playMusic(song.id)" />
               <Icon
                 icon="solar:video-frame-linear"
-                class="can-click text-lg ml-1 text-[var(--button-inactive)]"
+                class="can-click text-base ml-1 text-[var(--button-inactive)]"
                 v-if="song.mv && song.mv !== 0"
                 @click="router.push(`/video?id=${song.mv}`)" />
               <Icon

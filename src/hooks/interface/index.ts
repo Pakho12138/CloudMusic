@@ -25,6 +25,7 @@ export interface Track {
   time: number; // 时长（毫秒）
   mv?: number | string; // mvID
   Lyric?: LyricData; // 歌词
+  disabled?: boolean; // 是否禁用
 }
 
 // 定义 MusicPlayer 的类型

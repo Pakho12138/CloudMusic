@@ -38,7 +38,7 @@ export const useAudioStore = defineStore('audioStore', {
   getters: {
     isLike: state => {
       return state.likeList.includes(
-        state.trackList[state.currentSongIndex as number].id as number
+        state.trackList[state.currentSongIndex as number]?.id as number
       );
     },
   },

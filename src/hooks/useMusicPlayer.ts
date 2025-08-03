@@ -120,9 +120,20 @@ export function useMusicPlayer() {
           level: 'standard',
           br: 128000,
         });
-        audio.src = data[0].url;
-        AudioStore.setCurrentSongUrl(data[0].url);
-        audio.load();
+        if (!data?.length || !data[0].url) {
+          AudioStore.trackList[AudioStore.currentSongIndex as number].disabled =
+            true;
+          playNext(); // 如果没有新的音源，播放下一首
+          ElNotification({
+            title: '错误',
+            message: '当前歌曲没有可用音源，已切换到下一首。',
+            type: 'error',
+          });
+        } else {
+          audio.src = data[0].url;
+          AudioStore.setCurrentSongUrl(data[0].url);
+          audio.load();
+        }
       } catch (e) {
         // 如果有获取新源失败的专用错误信息
         // errorMessage = "获取新源失败。";
@@ -230,6 +241,9 @@ export function useMusicPlayer() {
   // 播放下一首歌曲
   function playNext() {
     if (!currentSong.value?.id) return;
+    if (AudioStore.trackList.every(song => song.disabled)) {
+      return;
+    }
 
     switch (playMode.value) {
       case PlayMode.Random: // 如果是随机模式，则随机选择一首歌曲播放
@@ -240,8 +254,13 @@ export function useMusicPlayer() {
         if (nextIndex >= AudioStore.trackList.length) {
           nextIndex = 0; // 如果是最后一首歌，则回到列表的开始
         }
-        AudioStore.setCurrentSong(nextIndex);
-        playSong();
+        if (AudioStore.trackList[nextIndex]?.disabled) {
+          AudioStore.setCurrentSong(nextIndex);
+          playNext(); // 如果下一首歌被禁用，则继续查找下一首
+        } else {
+          AudioStore.setCurrentSong(nextIndex);
+          playSong();
+        }
         break;
     }
   }
@@ -289,6 +308,8 @@ export function useMusicPlayer() {
   // 添加播放歌曲的方法
   const playSong = async (song: Track = currentSong.value) => {
     try {
+      if (!song?.id) return;
+
       resetAudio();
       isLoading.value = true; // 设置加载状态
       const res: any = await Api.get('song/url', {
@@ -299,10 +320,12 @@ export function useMusicPlayer() {
       });
       if (res.code == 200) {
         const data = res.data;
-        audio.src = data[0].url; // 确保您设置此歌曲的音频源
+        audio.src = data[0].url;
         getDetail(); // 加载数据
-        !isFirst && play(); // 播放歌曲
-        isFirst = false;
+        if (!data?.length || !data[0].url) {
+          !isFirst && play(); // 播放歌曲
+          isFirst = false;
+        }
       } else {
         ElNotification({
           title: '错误',

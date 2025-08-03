@@ -56,7 +56,13 @@
             <div
               class="py-[10px] px-[16px] bg-[--theme-bg-color] text-base text-center mx-[7px] mb-[7px] rounded">
               <div class="flex items-center justify-center gap-2">
-                <b v-if="userStore.userInfo?.vipType == 110"
+                <b
+                  v-if="userStore.userInfo?.vipType == 11"
+                  class="text-sm text-[#FFD700] italic"
+                  >VIP</b
+                >
+                <b
+                  v-if="userStore.userInfo?.vipType == 110"
                   class="text-sm text-[#FFD700] italic"
                   >SVIP</b
                 >
@@ -72,7 +78,9 @@
                   v-if="userStore.userInfo.gender === 2"
                   icon="material-symbols:female-rounded"
                   class="text-lg mr-1 !text-[hotpink]"></Icon>
-                <div>等级：<b>Lv{{ userStore.userInfo.level || 1 }}</b></div>
+                <div>
+                  等级：<b>Lv{{ userStore.userInfo.level || 1 }}</b>
+                </div>
               </div>
             </div>
             <el-dropdown-item class="justify-center" command="logout">
@@ -133,7 +141,9 @@ const getUserDetail = async () => {
   ]);
   let userInfo = {};
   if (res[0]?.code == 200) {
-    userInfo = res[0].profile || {};
+    const account = res[0].account || {};
+    const profile = res[0].profile || {};
+    userInfo = { ...profile, vipType: account.vipType || 0 };
   }
   if (res[1]?.code == 200) {
     userInfo = { ...userInfo, level: res[1].data?.level || 1 };
