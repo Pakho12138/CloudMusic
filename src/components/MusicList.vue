@@ -30,7 +30,7 @@
                 class="text-[0.625rem] leading-[1.2] text-[#FFD700] border border-[#FFD700] rounded px-1 mr-1"
                 >VIP</span
               >
-              <span> {{ row.name }} </span>
+              <span class="line-clamp-1"> {{ row.name }} </span>
               <span
                 v-if="row.tns?.length"
                 class="text-[--button-inactive] line-clamp-1 flex-1"
