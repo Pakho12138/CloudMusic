@@ -9,6 +9,9 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: Home,
+      meta: {
+        keepAlive: true,
+      },
     },
     {
       path: '/search',
@@ -19,6 +22,9 @@ const router = createRouter({
       path: '/mv',
       name: 'mv',
       component: () => import('../views/mv/index.vue'),
+      meta: {
+        keepAlive: true,
+      },
     },
     {
       path: '/video',
@@ -29,6 +35,9 @@ const router = createRouter({
       path: '/playlist',
       name: 'playlist',
       component: () => import('../views/playlist/index.vue'),
+      meta: {
+        keepAlive: true,
+      },
     },
     {
       path: '/playlistDetail',

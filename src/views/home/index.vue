@@ -4,7 +4,8 @@
   <!-- 使用 KeepAlive 缓存组件 -->
   <KeepAlive>
     <Recommend v-if="curTab === 'recommend'" />
-    
+    <TopList v-else-if="curTab === 'toplist'" />
+
     <view v-else class="container-wrapper flex-center"> 暂未开放 </view>
   </KeepAlive>
 </template>
@@ -13,6 +14,7 @@
 import { onMounted, ref } from 'vue';
 import TabBar from '@/components/TabBar.vue';
 import Recommend from './components/Recommend.vue';
+import TopList from './components/TopList.vue';
 
 onMounted(() => {});
 

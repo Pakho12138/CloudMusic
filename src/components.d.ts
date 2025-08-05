@@ -7,9 +7,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    CardSwap: typeof import('./components/VueBits/CardSwap.vue')['default']
     CommentPopup: typeof import('./components/CommentPopup/index.vue')['default']
     DrawerPlayer: typeof import('./components/DrawerPlayer/index.vue')['default']
     Footer: typeof import('./components/layout/Footer/Footer.vue')['default']
+    GlitchText: typeof import('./components/VueBits/GlitchText.vue')['default']
     Header: typeof import('./components/layout/Header.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     IconCommunity: typeof import('./components/icons/IconCommunity.vue')['default']
@@ -21,6 +23,7 @@ declare module 'vue' {
     LocalhostSong: typeof import('./components/layout/Footer/components/localhostSong.vue')['default']
     LoginDialog: typeof import('./components/LoginDialog.vue')['default']
     MusicList: typeof import('./components/MusicList.vue')['default']
+    PlayList: typeof import('./components/PlayList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SideBar: typeof import('./components/layout/SideBar.vue')['default']

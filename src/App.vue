@@ -24,7 +24,20 @@
         <SideBar />
       </el-aside>
       <el-main class="!flex !flex-col">
-        <router-view v-if="showPage"></router-view>
+        <template v-if="showPage">
+          <router-view v-slot="{ Component, route }">
+            <keep-alive>
+              <component
+                :is="Component"
+                :key="route.fullPath"
+                v-if="route.meta.keepAlive" />
+            </keep-alive>
+            <component
+              :is="Component"
+              :key="route.fullPath"
+              v-if="!route.meta.keepAlive" />
+          </router-view>
+        </template>
       </el-main>
     </el-container>
     <el-footer v-show="showFooter()" class="-z-[1]">

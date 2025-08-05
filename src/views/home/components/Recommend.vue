@@ -35,17 +35,7 @@
         </el-carousel-item>
       </el-carousel>
 
-      <div>
-        <div class="text-2xl font-semibold mt-6 mb-4 text-[--theme-color]">热门推荐</div>
-        <el-row :gutter="24">
-          <el-col class="pt-2 pb-2" :span="4" v-for="item in personalized" :key="item.id">
-            <div>
-              <el-image class="can-click w-full h-full rounded-xl aspect-square" :src="item.picUrl" fit="cover" />
-              <div class="can-click line-clamp-2 text-[--theme-color]">{{ item.name }}</div>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <PlayList title="热门推荐" :list="personalized" imgProp="picUrl"></PlayList>
     </template>
   </div>
 </template>

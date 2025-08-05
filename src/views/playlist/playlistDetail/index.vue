@@ -142,6 +142,9 @@ onMounted(async () => {
   await getPlaylistDetail();
   await musicListRef.value.getData();
   isLoading.value = false;
+  nextTick(() => {
+    checkDescriptionHeight();
+  });
 });
 
 const route = useRoute();
@@ -154,9 +157,6 @@ const getPlaylistDetail = async () => {
 
   if (res.code == 200) {
     detail.value = res.playlist || {};
-    nextTick(() => {
-      checkDescriptionHeight();
-    });
   } else {
     ElNotification({
       title: '错误',
