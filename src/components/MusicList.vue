@@ -4,7 +4,7 @@
       v-loading="isLoading"
       element-loading-background="transparent"
       :data="tableData"
-      @row-dblclick="playMusic"
+      @row-dblclick="playSong"
       class="w-full !text-xs !flex-1">
       <template #empty>
         <span v-show="!isLoading">暂无数据</span>
@@ -42,7 +42,9 @@
       </el-table-column>
       <el-table-column label="歌手" minWidth="120">
         <template #default="{ row }">
-          <div class="line-clamp-1" :title="row.ar?.map(ar => ar.name)?.join(' / ')">
+          <div
+            class="line-clamp-1"
+            :title="row.ar?.map(ar => ar.name)?.join(' / ')">
             <template v-if="row.ar && row.ar.length">
               <router-link
                 v-for="(item, index) in row.ar"
@@ -77,7 +79,7 @@
             <Icon
               icon="material-symbols:play-circle-rounded"
               class="can-click text-2xl text-[--button-inactive]"
-              @click="playMusic(row)" />
+              @click="playSong(row)" />
             <Icon
               icon="solar:video-frame-linear"
               class="can-click text-xl text-[--button-inactive]"
@@ -246,34 +248,6 @@ const getRecently = async () => {
     });
   }
   return res;
-};
-
-const playMusic = async (row: Song) => {
-  const existingIndex = AudioStore.trackList.findIndex(
-    existingTrack => existingTrack.id === row.id
-  );
-
-  if (existingIndex === -1) {
-    try {
-      const param: Track = {
-        id: row.id,
-        title: row.name,
-        singer: row.ar.map((ar: any) => ar.name).join(' / '),
-        album: row.al.name,
-        cover: row.al.picUrl,
-        time: row.dt,
-        source: '',
-        mv: row.mv as number,
-      };
-
-      playSong(param); // 自动播放新添加的歌曲
-    } catch (error) {
-      console.error('Error fetching music URL:', error);
-    }
-  } else {
-    const existingTrack = AudioStore.trackList[existingIndex];
-    playSong(existingTrack); // 自动播放已存在的歌曲
-  }
 };
 
 const handleSizeChange = (Size: number) => {

@@ -306,15 +306,32 @@ export function useMusicPlayer() {
   };
 
   // 添加播放歌曲的方法
-  const playSong = async (song: Track = currentSong.value) => {
+  const playSong = async (song?: Song) => {
     try {
-      if (!song?.id) return;
+      let track: Track;
 
-      AudioStore.addTrackAndPlay(song);
+      if (song) {
+        track = {
+          id: song.id,
+          title: song.name,
+          singer: song.ar.map((ar: any) => ar.name).join(' / '),
+          album: song.al.name,
+          cover: song.al.picUrl,
+          time: song.dt,
+          source: '',
+          mv: song.mv as number,
+        };
+      } else {
+        track = currentSong.value;
+      }
+
+      if (!track?.id) return;
+
+      AudioStore.addTrackAndPlay(track);
       resetAudio();
       isLoading.value = true; // 设置加载状态
       const res: any = await Api.get('song/url', {
-        id: song.id,
+        id: track.id,
         level: 'standard',
         br: 128000,
         cookie: localStorage.getItem('cookie') || '',

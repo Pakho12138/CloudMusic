@@ -45,7 +45,7 @@
                 class="flex items-center text-sm can-click"
                 v-for="(cItem, cIdx) in item.trackList"
                 :key="cItem"
-                @dblclick="playMusic(cItem)">
+                @dblclick="playSong(cItem)">
                 <span class="px-4 text-[--inactive-color]">{{ cIdx + 1 }}</span>
                 <div class="flex items-center gap-2 text-[--secondary-color]">
                   <span class="text-[--theme-color] whitespace-nowrap">{{
@@ -98,25 +98,6 @@ const getPlaylistDetail = async (item: any) => {
   });
   if (res.code == 200) {
     item.trackList = res.playlist.tracks?.slice(0, 6) || [];
-  }
-};
-
-const playMusic = async (row: Song) => {
-  try {
-    const param: Track = {
-      id: row.id,
-      title: row.name,
-      singer: row.ar.map((ar: any) => ar.name).join(' / '),
-      album: row.al.name,
-      cover: row.al.picUrl,
-      time: row.dt,
-      source: '',
-      mv: row.mv as number,
-    };
-
-    playSong(param); // 自动播放新添加的歌曲
-  } catch (error) {
-    console.error('Error fetching music URL:', error);
   }
 };
 
