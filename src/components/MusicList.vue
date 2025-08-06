@@ -266,14 +266,12 @@ const playMusic = async (row: Song) => {
         mv: row.mv as number,
       };
 
-      AudioStore.addTrackAndPlay(param);
       playSong(param); // 自动播放新添加的歌曲
     } catch (error) {
       console.error('Error fetching music URL:', error);
     }
   } else {
     const existingTrack = AudioStore.trackList[existingIndex];
-    AudioStore.addTrackAndPlay(existingTrack);
     playSong(existingTrack); // 自动播放已存在的歌曲
   }
 };

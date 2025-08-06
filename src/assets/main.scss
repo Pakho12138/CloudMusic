@@ -77,6 +77,12 @@ html {
   -webkit-line-clamp: 2; /* 控制显示的行数 */
 }
 
+.single-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .can-click {
   cursor: pointer;
   user-select: none;

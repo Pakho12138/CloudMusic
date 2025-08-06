@@ -310,6 +310,7 @@ export function useMusicPlayer() {
     try {
       if (!song?.id) return;
 
+      AudioStore.addTrackAndPlay(song);
       resetAudio();
       isLoading.value = true; // 设置加载状态
       const res: any = await Api.get('song/url', {

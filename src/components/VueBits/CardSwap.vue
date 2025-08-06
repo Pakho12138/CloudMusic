@@ -1,17 +1,17 @@
 <template>
   <div
     ref="containerRef"
-    class="card-swap-container absolute bottom-0 right-0 transform translate-x-[5%] translate-y-[20%] origin-bottom-right perspective-[900px] overflow-visible max-[768px]:translate-x-[25%] max-[768px]:translate-y-[25%] max-[768px]:scale-[0.75] max-[480px]:translate-x-[25%] max-[480px]:translate-y-[25%] max-[480px]:scale-[0.55]"
+    class="card-swap-container absolute bottom-0 right-0 transform translate-x-[5%] translate-y-[20%] origin-bottom-right perspective-[900px] overflow-visible"
     :style="{
       width: typeof width === 'number' ? `${width}px` : width,
       height: typeof height === 'number' ? `${height}px` : height,
     }"
   >
     <div
-      v-for="(_, index) in 3"
+      v-for="(_, index) in cardCount"
       :key="index"
       ref="cardRefs"
-      class="card-swap-card absolute top-1/2 left-1/2 rounded-xl border border-white bg-black [transform-style:preserve-3d] [will-change:transform] [backface-visibility:hidden]"
+      class="card-swap-card absolute top-1/2 left-1/2 rounded-xl bg-[--theme-bg-color] backdrop-blur-md [transform-style:preserve-3d] [will-change:transform] [backface-visibility:hidden]"
       :style="{
         width: typeof width === 'number' ? `${width}px` : width,
         height: typeof height === 'number' ? `${height}px` : height,
@@ -36,6 +36,7 @@ export interface CardSwapProps {
   onCardClick?: (idx: number) => void;
   skewAmount?: number;
   easing?: "linear" | "elastic";
+  cardCount?: number; // 添加卡片数量prop
 }
 
 interface Slot {
@@ -94,6 +95,7 @@ const props = withDefaults(defineProps<CardSwapProps>(), {
   pauseOnHover: false,
   skewAmount: 6,
   easing: "elastic",
+  cardCount: 4 // 设置默认值为3，保持向后兼容
 });
 
 const emit = defineEmits<{
@@ -102,7 +104,7 @@ const emit = defineEmits<{
 
 const containerRef = useTemplateRef<HTMLDivElement>("containerRef");
 const cardRefs = ref<HTMLElement[]>([]);
-const order = ref<number[]>([0, 1, 2]);
+const order = ref<number[]>(Array.from({length: props.cardCount}, (_, i) => i)); // 动态生成order数组
 const tlRef = ref<gsap.core.Timeline | null>(null);
 const intervalRef = ref<number>();
 
