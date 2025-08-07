@@ -1,5 +1,5 @@
-@use "./base.scss";
-@use "./element.scss";
+@use './base.scss';
+@use './element.scss';
 @use './tailwind.css';
 
 html {
@@ -34,7 +34,7 @@ html {
   // min-width: 800px;
   padding: 20px 40px;
   overflow: auto;
-  animation: fadeIn .5s forwards;
+  animation: fadeIn 0.5s forwards;
 }
 
 .flex {
@@ -87,16 +87,16 @@ html {
   cursor: pointer;
   user-select: none;
   outline: none;
+  transition: all 0.3s;
   &.disabled {
     cursor: not-allowed;
   }
   &:not(.disabled) {
     &:hover {
-      transition: all 0.3s;
-      filter: brightness(1.2);
+      filter: brightness(1.1);
     }
     &:active {
-      transition: none;
+      transition: none !important;
       filter: brightness(0.8);
     }
   }

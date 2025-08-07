@@ -3,10 +3,10 @@
     <div
       class="h-[420px] overflow-hidden flex relative bg-[--theme-bg-color] mt-4 rounded-lg">
       <div
-        class="w-2/5 h-auto flex flex-col justify-center items-center text-center pt-8 pb-4">
-        <h2 class="text-4xl mb-4 font-bold leading-tight pl-0">官方榜单</h2>
-        <p class="text-lg mb-4 font-normal leading-tight text-gray-400 pl-0">
-          Official Ranking List
+        class="w-2/5 h-auto flex flex-col justify-center items-center pt-8 pb-4">
+        <h2 class="text-4xl mb-4 font-bold leading-tight pl-0">云音乐特色榜</h2>
+        <p class="text-lg mb-4 font-bold leading-tight text-gray-400 pl-0">
+          Cloud Music Featured Charts
         </p>
       </div>
       <CardSwap
@@ -64,9 +64,10 @@
     </div>
 
     <PlayList
-      title="全球榜单"
+      title="全球媒体榜"
       :list="toplist.slice(4)"
-      imgProp="coverImgUrl"></PlayList>
+      imgProp="coverImgUrl"
+      nameClass="text-center !line-clamp-1"></PlayList>
   </div>
 </template>
 

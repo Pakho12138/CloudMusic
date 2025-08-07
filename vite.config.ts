@@ -10,6 +10,8 @@ import IconsResolver from 'unplugin-icons/resolver'; // 集成图标集
 
 import Icons from 'unplugin-icons/vite';
 import path from 'path';
+import cssnano from 'cssnano';
+import { AcceptedPlugin } from 'postcss';
 
 const pathSrc = path.resolve(__dirname, 'src');
 
@@ -51,7 +53,15 @@ export default defineConfig({
       },
     },
     postcss: {
-      plugins: [tailwindcss, autoprefixer],
+      plugins: [
+        tailwindcss,
+        autoprefixer,
+        // 开发环境启用基础压缩
+        (process.env.NODE_ENV === 'development' &&
+          cssnano({
+            preset: ['default', { discardComments: { removeAll: true } }],
+          })) as AcceptedPlugin,
+      ].filter(Boolean),
     },
   },
 });

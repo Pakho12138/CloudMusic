@@ -32,10 +32,6 @@ const tabs = ref<Array<any>>([
     label: '歌单',
     name: 'playlist',
   },
-  {
-    label: '主播电台',
-    name: 'djradio',
-  },
 ]);
 </script>
 

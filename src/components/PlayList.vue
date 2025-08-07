@@ -12,12 +12,15 @@
         v-for="item in list"
         :key="item.id"
         @click="router.push(`/playlistDetail?id=${item.id}`)">
-        <div>
+        <div class="can-click group">
           <el-image
-            class="can-click w-full h-full rounded-xl aspect-square"
+            class="w-full h-full rounded-xl aspect-square"
             :src="item[imgProp]"
             fit="cover" />
-          <div class="can-click line-clamp-2 text-[--theme-color]">
+          <div
+            class="line-clamp-2 text-[--theme-color] group-hover:text-[--button-inactive] transition-all duration-300 group-active:transition-none"
+            :class="nameClass"
+            :title="item.name">
             {{ item.name }}
           </div>
         </div>
@@ -42,7 +45,11 @@ const props = defineProps({
   imgProp: {
     type: String,
     default: 'coverImgUrl',
-  }
+  },
+  nameClass: {
+    type: String,
+    default: '',
+  },
 });
 
 onMounted(() => {});

@@ -5,6 +5,7 @@
       <div class="flex items-center gap-8">
         <div class="flex items-center gap-4 ml-6">
           <Icon
+            :class="!canGoBack ? 'opacity-30 !cursor-not-allowed' : ''"
             class="can-click text-2xl text-[--button-inactive]"
             icon="material-symbols:arrow-back-ios"
             @click="router.back()" />
@@ -96,14 +97,14 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { Icon } from '@iconify/vue';
 import { Api } from '@/utils/request';
 import { useUserStore } from '@/stores/useUserStore';
 import { ElNotification } from 'element-plus';
+import router from '@/router';
 
 const route = useRoute();
-const router = useRouter();
 const userStore = useUserStore();
 
 onMounted(() => {
@@ -161,6 +162,13 @@ const handleDropdownCommand = (command: string) => {
     });
   }
 };
+
+const canGoBack = computed(() => {
+  return (
+    router.currentRoute.value.matched.length > 0 &&
+    window.history.state?.position > 0
+  );
+});
 </script>
 
 <style lang="scss" scoped>
