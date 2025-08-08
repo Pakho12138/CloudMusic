@@ -1,6 +1,7 @@
 <template>
   <div class="header">
-    <div class="menu-circle"></div>
+    <div class="menu-circle" @click="toggleSpectrogram()"></div>
+
     <div class="flex-1 flex items-center justify-between">
       <div class="flex items-center gap-8">
         <div class="flex items-center gap-4 ml-6">
@@ -103,6 +104,8 @@ import { Api } from '@/utils/request';
 import { useUserStore } from '@/stores/useUserStore';
 import { ElNotification } from 'element-plus';
 import router from '@/router';
+
+const toggleSpectrogram = inject('toggleSpectrogram') as any;
 
 const route = useRoute();
 const userStore = useUserStore();

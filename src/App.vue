@@ -15,7 +15,7 @@
 
   <el-container
     class="app-main"
-    :class="{ 'is-login': userStore.loginDialogVisible }">
+    :class="{ minimize: showSpectrogram || userStore.loginDialogVisible }">
     <el-header>
       <Header />
     </el-header>
@@ -48,6 +48,8 @@
   </el-container>
 
   <LoginDialog />
+
+  <Spectrogram v-if="showSpectrogram" />
 </template>
 
 <script setup lang="ts" name="App">
@@ -84,6 +86,9 @@ const route = useRoute();
 const showFooter = () => {
   return route?.name != 'video';
 };
+
+const showSpectrogram = ref(false);
+provide('toggleSpectrogram', () => (showSpectrogram.value = !showSpectrogram.value));
 </script>
 
 <style>
@@ -126,10 +131,11 @@ const showFooter = () => {
     opacity: 1;
     filter: blur(0px);
     transition: all 0.3s;
-    &.is-login {
+    &.minimize {
       transform: scale(0.9);
       opacity: 0.3;
       filter: blur(3px);
+      pointer-events: none;
     }
     .el-header {
       padding: 0;
