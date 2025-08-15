@@ -338,11 +338,7 @@ export function useMusicPlayer() {
       });
       if (res.code == 200) {
         const data = res.data;
-        // audio.src = data[0].url;
-        audio.src = `https://cloudmusic.pages.dev/proxy?url=${encodeURIComponent(
-          data[0].url
-        )}`;
-        audio.crossOrigin = "anonymous";
+        audio.src = data[0].url;
         getDetail(); // 加载数据
         if (data?.length && data[0].url) {
           !isFirst && play(); // 播放歌曲
